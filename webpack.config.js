@@ -1,4 +1,5 @@
 const path = require('path');
+const autoprefixer = require('autoprefixer');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -14,7 +15,7 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader'
+          loader: 'babel-loader',
         },
       },
       {
@@ -25,10 +26,10 @@ module.exports = {
         test: /\.(scss)$/,
         use: [{
           // inject CSS to page
-          loader: 'style-loader'
+          loader: 'style-loader',
         }, {
           // translates CSS into CommonJS modules
-          loader: 'css-loader'
+          loader: 'css-loader',
         }, {
           // Run postcss actions
           loader: 'postcss-loader',
@@ -37,23 +38,23 @@ module.exports = {
             // if you use postcss 7.x skip the key
             postcssOptions: {
               // postcss plugins, can be exported to postcss.config.js
-              plugins: function () {
+              plugins: function plugins() {
                 return [
-                  require('autoprefixer')
+                  autoprefixer,
                 ];
-              }
-            }
-          }
+              },
+            },
+          },
         }, {
           // compiles Sass to CSS
-          loader: 'sass-loader'
-        }]
-      }
+          loader: 'sass-loader',
+        }],
+      },
     ],
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'src/static/template.html'
-    })
+      template: 'src/static/template.html',
+    }),
   ],
 };
