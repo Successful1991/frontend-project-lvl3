@@ -1,4 +1,8 @@
+function getString() {
+  return 'string';
+}
+
 test('empty test', () => {
-  expect(1).toBe(1);
-  expect(1).not.toBe(5);
+  expect(getString).toBe('string');
+  expect(getString).not.toBe(5);
 });
