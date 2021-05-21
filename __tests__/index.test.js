@@ -3,6 +3,6 @@ function getString() {
 }
 
 test('empty test', () => {
-  expect(getString).toBe('string');
-  expect(getString).not.toBe(5);
+  expect(getString()).toBe('string');
+  expect(getString()).not.toBe(5);
 });
