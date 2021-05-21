@@ -1,6 +1,4 @@
-function getString() {
-  return 'string';
-}
+import getString from '../src/assets/js';
 
 test('empty test', () => {
   expect(getString()).toBe('string');
