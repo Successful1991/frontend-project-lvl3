@@ -8,11 +8,7 @@
 	"rules": {
 		"no-console": 0,
 		"import/extensions": 0,
-		"no-underscore-dangle": [2, { "allow": ["__filename", "__dirname"] }],
-		"import/no-unresolved": [
-			2,
-			{ "caseSensitive": false }
-		]
+		"no-underscore-dangle": [2, { "allow": ["__filename", "__dirname"] }]
 	},
 	"plugins": ["jest", "babel"]
 }
