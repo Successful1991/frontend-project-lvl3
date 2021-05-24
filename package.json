@@ -16,7 +16,7 @@
   "bugs": {
     "url": "https://github.com/Successful1991/frontend-project-lvl3/issues"
   },
-  "main": "src/index.js",
+  "main": "index.js",
   "homepage": "https://github.com/Successful1991/frontend-project-lvl3#readme",
   "jest": {
     "verbose": true,
