@@ -1,5 +1,5 @@
 function getString() {
-  return 'string2';
+  return 'string';
 }
 
 export default getString;
