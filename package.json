@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npx jest --colors",
     "build": "webpack",
-	  "prepare": "npm set-script prepare \"husky install\" && npm run prepare"
+	  "prepare": "husky install"
   },
   "repository": {
     "type": "git",
