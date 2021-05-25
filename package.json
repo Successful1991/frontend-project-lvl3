@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "test": "npx jest --colors",
-    "build": "webpack"
+    "build": "webpack",
+	  "prepare": "npm set-script prepare \"husky install\" && npm run prepare"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,8 @@
     "testURL": "http://localhost/"
   },
   "dependencies": {
-    "bootstrap": "^5.0.1"
+    "bootstrap": "^5.0.1",
+    "husky": "^6.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
