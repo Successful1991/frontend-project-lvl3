@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npx jest --colors",
     "build": "webpack",
-	  "prepare": "husky install"
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -24,8 +24,7 @@
     "testURL": "http://localhost/"
   },
   "dependencies": {
-    "bootstrap": "^5.0.1",
-    "husky": "^6.0.0"
+    "bootstrap": "^5.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
@@ -42,6 +41,7 @@
     "eslint-plugin-import": "^2.23.3",
     "eslint-plugin-jest": "^24.3.6",
     "html-webpack-plugin": "^5.3.1",
+    "husky": "^6.0.0",
     "jest": "^26.6.3",
     "jest-cli": "^26.6.3",
     "style-loader": "^2.0.0",
