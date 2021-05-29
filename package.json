@@ -24,7 +24,11 @@
     "testURL": "http://localhost/"
   },
   "dependencies": {
-    "bootstrap": "^5.0.1"
+    "axios": "^0.21.1",
+    "bootstrap": "^5.0.1",
+    "lodash": "^4.17.21",
+    "on-change": "^3.0.2",
+    "yup": "^0.32.9"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",

@@ -1,6 +1,5 @@
-import getString from '../src/app';
+import app from '../src/app';
 
 test('empty test', () => {
-  expect(getString()).toBe('string');
-  expect(getString()).not.toBe(5);
+  expect(app()).toBe(undefined);
 });
