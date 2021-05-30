@@ -1,10 +1,14 @@
 import * as yup from 'yup';
 import axios from 'axios';
+import i18next from 'i18next';
 import _ from 'lodash';
+
 import render from './view';
 import parse from './parser';
+import init from './init';
 
 function app() {
+  init();
   const elements = {
     form: document.querySelector('form'),
     submit: document.querySelector('#submit'),
@@ -16,9 +20,10 @@ function app() {
 
   const state = {
     form: {
-      status: 'filling', // filling, getting, failed
+      status: 'filling', // filling, getting, failed, success
       isValid: true,
     },
+    rssUrl: [],
     feeds: [],
     posts: [],
     feedback: '',
@@ -41,8 +46,8 @@ function app() {
   };
 
   const isValidUrl = (url) => {
-    const isValid = schemaRss.isValidSync(url);
-    return (isValid && !_.includes(watchedState.feeds, url));
+    const isValid = schemaRss.notOneOf(watchedState.rssUrl).isValidSync(url);
+    return isValid;
   };
 
   function createRss(url) {
@@ -60,12 +65,15 @@ function app() {
         };
         const items = data.items.map((item) => ({ ...item, feedId: id, id: _.uniqueId() }));
         watchedState.feeds.unshift(feed);
-        watchedState.feedback = 'RSS успешно добавлен';
+        watchedState.rssUrl.push(url);
         watchedState.posts.unshift(...items);
+        watchedState.feedback = i18next.t('feedback.success');
+        watchedState.form.status = 'success';
+        watchedState.form.status = 'filling';
       })
       .catch((error) => {
         watchedState.feedback = error;
-        watchedState.status = 'failed';
+        watchedState.form.status = 'failed';
         throw new Error(error);
       });
   }
@@ -73,12 +81,13 @@ function app() {
   function submitHandler(form) {
     const formData = new FormData(form);
     const url = formData.get('url');
+
     if (isValidUrl(url)) {
       createRss(url);
       watchedState.form.isValid = true;
       watchedState.form.status = 'filling';
     } else {
-      watchedState.feedback = 'Url is not valid';
+      watchedState.feedback = i18next.t('feedback.noValidUrl');
       watchedState.form.isValid = false;
       watchedState.form.status = 'failed';
     }

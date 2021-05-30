@@ -1,0 +1,11 @@
+{
+	"translation": {
+		"feedback": {
+			"success": "RSS added successfully",
+			"noValidUrl": "Url is not valid",
+			"noValidRss": "Resource does not contain valid RSS",
+			"repeatedUrl": "rss has already been added",
+			"network": "network not available"
+		}
+	}
+}

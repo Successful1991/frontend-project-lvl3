@@ -1,5 +1,20 @@
 import onChange from 'on-change';
 
+function renderFeedback(message, elements) {
+  const feedbackEl = elements.feedback;
+  feedbackEl.innerHTML = message;
+}
+
+function renderError(elements) {
+  elements.feedback.classList.remove('text-success');
+  elements.feedback.classList.add('text-danger');
+}
+
+function renderSuccess(elements) {
+  elements.feedback.classList.remove('text-danger');
+  elements.feedback.classList.add('text-success');
+}
+
 function renderFeeds(data, elements) {
   const feedsEl = elements.feeds;
   feedsEl.innerHTML = '';
@@ -9,6 +24,7 @@ function renderFeeds(data, elements) {
     feedsEl.innerHTML = feedHtml;
   });
 }
+
 function renderPosts(feeds, elements) {
   const postsEl = elements.posts;
   postsEl.innerHTML = '';
@@ -34,16 +50,14 @@ function renderForm(status, elements) {
     case 'failed':
       elements.url.removeAttribute('disable');
       elements.submit.removeAttribute('disable');
-      elements.feedback.show();
+      renderError(elements);
+      break;
+    case 'success':
+      renderSuccess(elements);
       break;
     default:
       throw new Error(`Unknown form status: ${status}`);
   }
-}
-
-function renderFeedback(message, elements) {
-  const feedbackEl = elements.feedback;
-  feedbackEl.innerHTML = message;
 }
 
 function render(state, elements) {
@@ -56,7 +70,7 @@ function render(state, elements) {
     elements.url.classList.remove('is-valid');
   };
 
-  return onChange(state, (path, value) => {
+  const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'form.isValid':
         if (value) {
@@ -81,5 +95,7 @@ function render(state, elements) {
         break;
     }
   });
+
+  return watchedState;
 }
 export default render;
