@@ -7,7 +7,6 @@ const parse = (string) => {
   if (errorEl) {
     throw new Error(i18next.t('feedback.noValidRss'));
   }
-
   const domItems = parsedDoc.querySelectorAll('item');
   return {
     title: parsedDoc.querySelector('title').textContent,
@@ -15,6 +14,7 @@ const parse = (string) => {
     description: parsedDoc.querySelector('description').textContent,
     items: Array.from(domItems).map((item) => ({
       title: item.querySelector('title').textContent,
+      description: item.querySelector('description').textContent,
       link: item.querySelector('link').textContent,
     })),
   };

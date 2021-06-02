@@ -1,5 +1,5 @@
 import i18next from 'i18next';
-import en from './en.json';
+import en from './language/en.json';
 
 function init() {
   i18next.init({

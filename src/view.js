@@ -1,18 +1,18 @@
 import onChange from 'on-change';
+import i18next from 'i18next';
 
-function renderFeedback(message, elements) {
+function renderError(elements, message) {
   const feedbackEl = elements.feedback;
+  feedbackEl.classList.remove('text-success');
+  feedbackEl.classList.add('text-danger');
   feedbackEl.innerHTML = message;
 }
 
-function renderError(elements) {
-  elements.feedback.classList.remove('text-success');
-  elements.feedback.classList.add('text-danger');
-}
-
-function renderSuccess(elements) {
-  elements.feedback.classList.remove('text-danger');
-  elements.feedback.classList.add('text-success');
+function renderSuccess(elements, message) {
+  const feedbackEl = elements.feedback;
+  feedbackEl.classList.remove('text-danger');
+  feedbackEl.classList.add('text-success');
+  feedbackEl.innerHTML = message;
 }
 
 function renderFeeds(data, elements) {
@@ -28,68 +28,93 @@ function renderFeeds(data, elements) {
 function renderPosts(feeds, elements) {
   const postsEl = elements.posts;
   postsEl.innerHTML = '';
-
-  const posts = feeds.map((item) => `<li class="list-group-item d-flex justify-content-between align-items-start">
-      <a href="${item.link}" class="font-weight-normal">${item.title}</a>
-      <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal">Просмотр</button></li>`);
+  const posts = feeds.map((item) => `<li class="list-group-item d-flex justify-content-between align-items-start" data-post-element>
+      <a href="${item.link}" class="${(item.showed ? 'font-weight-normal fw-normal' : 'font-weight-bold fw-bold')}">${item.title}</a>
+      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal" data-post-id="${item.id}">Просмотр</button></li>`);
   const postsHtml = posts.join('');
   postsEl.innerHTML = postsHtml;
 }
 
-function renderForm(status, elements) {
+function renderForm(status, elements, watchedState) {
   switch (status) {
     case 'filling':
       elements.form.reset();
       elements.url.removeAttribute('disable');
       elements.submit.removeAttribute('disable');
+      renderSuccess(elements, i18next.t('messages.success'));
       break;
     case 'getting':
-      elements.url.setAttribute('disable');
-      elements.submit.setAttribute('disable');
+      elements.url.setAttribute('disable', true);
+      elements.submit.setAttribute('disable', true);
       break;
     case 'failed':
       elements.url.removeAttribute('disable');
       elements.submit.removeAttribute('disable');
-      renderError(elements);
-      break;
-    case 'success':
-      renderSuccess(elements);
+      renderError(elements, watchedState.error);
       break;
     default:
       throw new Error(`Unknown form status: ${status}`);
   }
 }
 
+function changeFontWidth(element) {
+  element.classList.remove('font-weight-bold', 'fw-bold');
+  element.classList.add('font-weight-normal', 'fw-normal');
+}
+
+function renderModal(modal, elements) {
+  const { title, description, link } = modal.post;
+  const modalEl = elements.modal;
+  modalEl.title.textContent = title;
+  modalEl.content.textContent = description;
+  modalEl.link.setAttribute('href', link);
+}
+
 function render(state, elements) {
+  const clearInput = () => {
+    const urlEl = elements.url;
+    urlEl.classList.remove('is-valid');
+    urlEl.classList.remove('is-invalid');
+  };
   const setValidInput = () => {
     elements.url.classList.add('is-valid');
-    elements.url.classList.remove('is-invalid');
   };
   const setInvalidInput = () => {
     elements.url.classList.add('is-invalid');
-    elements.url.classList.remove('is-valid');
   };
 
-  const watchedState = onChange(state, (path, value) => {
+  function renderFormError(field) {
+    clearInput();
+    if (field.valid) {
+      setValidInput();
+    } else {
+      setInvalidInput();
+    }
+    renderError(elements, field.error);
+  }
+
+  const watchedState = onChange(state, function watchedState(path, value) {
     switch (path) {
-      case 'form.isValid':
-        if (value) {
-          setValidInput();
-        } else {
-          setInvalidInput();
-        }
+      case 'form.fields.url':
+        renderFormError(value);
         break;
       case 'form.status':
-        renderForm(value, elements);
-        break;
-      case 'feeds':
-        renderFeeds(value, elements);
-        break;
-      case 'posts':
-        renderPosts(value, elements);
+        renderForm(value, elements, this);
         break;
       case 'feedback':
-        renderFeedback(value, elements);
+        renderSuccess(elements, value);
+        break;
+      case 'data.feeds':
+        renderFeeds(value, elements);
+        break;
+      case 'data.posts':
+        renderPosts(value, elements);
+        break;
+      case 'modal':
+        renderModal(value, elements);
+        break;
+      case 'ui.lastShowingPost':
+        changeFontWidth(value);
         break;
       default:
         break;
