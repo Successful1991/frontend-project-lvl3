@@ -51,7 +51,7 @@ function updateRss(feed, watchedState) {
 function app() {
   init();
   const elements = {
-    form: document.querySelector('form'),
+    form: document.querySelector('.rss-form'),
     submit: document.querySelector('#submit'),
     url: document.querySelector('#form-url'),
     feeds: document.querySelector('[data-feeds-wrap]'),
