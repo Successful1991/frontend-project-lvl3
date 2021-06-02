@@ -1,11 +1,11 @@
 import i18next from 'i18next';
-import en from './language/en.json';
+import ru from './language/ru.json';
 
 function init() {
   i18next.init({
-    lng: 'en',
+    lng: 'ru',
     resources: {
-      en,
+      ru,
     },
     debug: true,
   });

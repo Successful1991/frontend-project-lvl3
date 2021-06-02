@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Новые уроки на Хекслете</title>
+        <description>Практические уроки по программированию</description>
+        <link>https://ru.hexlet.io/</link>
+        <webMaster>info@hexlet.io</webMaster>
+        <item>
+            <title>Docker / DevOps для программистов</title>
+            <guid isPermaLink="false">1993</guid>
+            <link>https://ru.hexlet.io/courses/devops-for-programmers/lessons/docker/theory_unit</link>
+            <description>Цель: Изучить хорошие практики при использовании Docker.</description>
+            <pubDate>Wed, 02 Jun 2021 12:44:18 +0300</pubDate>
+        </item>
+        <item>
+            <title>Операционные системы и сети / DevOps для программистов</title>
+            <guid isPermaLink="false">1992</guid>
+            <link>https://ru.hexlet.io/courses/devops-for-programmers/lessons/os-and-networks/theory_unit</link>
+            <description>Цель: Операционные системы и сети</description>
+            <pubDate>Wed, 02 Jun 2021 10:36:12 +0300</pubDate>
+        </item>
+    </channel>
+</rss>

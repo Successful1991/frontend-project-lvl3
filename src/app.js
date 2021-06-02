@@ -14,7 +14,7 @@ const addProxy = (url) => {
   return urlWithProxy.toString();
 };
 
-const getRss = (url) => {
+const getRss = async (url) => {
   const urlWithProxy = addProxy(url);
   return axios.get(urlWithProxy)
     .then((resp) => parse(resp.data.contents))
@@ -162,6 +162,8 @@ function app() {
       post,
     };
   });
+
+  return true;
 }
 
-export default app;
+export { app, getRss };
