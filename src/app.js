@@ -166,4 +166,4 @@ function app() {
   return true;
 }
 
-export { app, getRss };
+export default app;
