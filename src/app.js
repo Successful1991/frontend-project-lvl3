@@ -148,6 +148,7 @@ function app() {
 
   console.log(elements);
   function handler() {
+    console.log(document.querySelector('.rss-form'));
     elements.form.addEventListener('submit', (event) => {
       event.preventDefault();
       submitHandler(event.currentTarget);
