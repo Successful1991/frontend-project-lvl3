@@ -146,24 +146,25 @@ function app() {
       });
   }
 
-  console.log(elements.form);
-  console.log(elements.form.outerHTML);
-  elements.form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    submitHandler(event.currentTarget);
-  });
+  console.log(elements);
+  function handler() {
+    elements.form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      submitHandler(event.currentTarget);
+    });
+    elements.modal.container.addEventListener('show.bs.modal', (event) => {
+      const { postId } = event.relatedTarget.dataset;
+      if (watchedState.data.viewedPostsId.includes(postId) || postId === undefined) return;
+      const post = _.find(watchedState.data.posts, { id: postId });
+      watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
+      post.showed = true;
 
-  elements.modal.container.addEventListener('show.bs.modal', (event) => {
-    const { postId } = event.relatedTarget.dataset;
-    if (watchedState.data.viewedPostsId.includes(postId) || postId === undefined) return;
-    const post = _.find(watchedState.data.posts, { id: postId });
-    watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
-    post.showed = true;
-
-    watchedState.modal = {
-      post,
-    };
-  });
+      watchedState.modal = {
+        post,
+      };
+    });
+  }
+  handler();
   return true;
 }
 
