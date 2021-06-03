@@ -3,7 +3,7 @@ import axios from 'axios';
 import i18next from 'i18next';
 import _ from 'lodash';
 
-import render from './view';
+import initView from './view';
 import parse from './parser';
 import init from './init';
 
@@ -91,22 +91,22 @@ function app() {
       lastShowingPost: null,
     },
   };
-  const watchedState = render(state, elements);
   const schemaRss = yup.string().required().trim().url();
 
-  const isValidUrl = (url) => {
+  const isValidUrl = (url, rssUrl = []) => {
     try {
-      schemaRss.notOneOf(watchedState.rssUrl).validateSync(url);
+      schemaRss.notOneOf(rssUrl).validateSync(url);
       return null;
     } catch (e) {
       return e;
     }
   };
 
+  const watchedState = initView(state, elements);
   function submitHandler(form) {
     const formData = new FormData(form);
     const url = formData.get('url');
-    const error = isValidUrl(url);
+    const error = isValidUrl(url, watchedState.rssUrl);
 
     if (error) {
       const errorMessage = i18next.t([`form.errors.${error.type}`, 'form.errors.default']);
@@ -140,8 +140,8 @@ function app() {
         watchedState.form.status = 'filling';
         updateRss(feed, watchedState);
       })
-      .catch(() => {
-        watchedState.error = i18next.t('errors.network');
+      .catch((e) => {
+        watchedState.error = e.message;
         watchedState.form.status = 'failed';
       });
   }
@@ -162,7 +162,6 @@ function app() {
       post,
     };
   });
-
   return true;
 }
 
