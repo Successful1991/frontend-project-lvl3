@@ -146,6 +146,8 @@ function app() {
       });
   }
 
+  console.log(elements.form);
+  console.log(elements.form.outerHTML);
   elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
     submitHandler(event.currentTarget);
