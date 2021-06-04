@@ -52,6 +52,7 @@ const renderForm = (status, elements, watchedState) => {
     case 'failed':
       elements.url.removeAttribute('disabled');
       elements.submit.removeAttribute('disabled');
+      elements.url.removeAttribute('readonly');
       renderError(elements, watchedState.error);
       break;
     default:
