@@ -39,19 +39,19 @@ const renderForm = (status, elements, watchedState) => {
   switch (status) {
     case 'filling':
       elements.form.reset();
-      elements.url.removeAttribute('disable');
+      elements.url.removeAttribute('disabled');
       elements.url.removeAttribute('readonly');
-      elements.submit.removeAttribute('disable');
+      elements.submit.removeAttribute('disabled');
       renderSuccess(elements, i18next.t('messages.success'));
       break;
     case 'getting':
-      elements.url.setAttribute('disable', true);
+      elements.url.setAttribute('disabled', true);
       elements.url.setAttribute('readonly', true);
-      elements.submit.setAttribute('disable', true);
+      elements.submit.setAttribute('disabled', true);
       break;
     case 'failed':
-      elements.url.removeAttribute('disable');
-      elements.submit.removeAttribute('disable');
+      elements.url.removeAttribute('disabled');
+      elements.submit.removeAttribute('disabled');
       renderError(elements, watchedState.error);
       break;
     default:
