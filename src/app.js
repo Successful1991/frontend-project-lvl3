@@ -20,7 +20,9 @@ const getRss = async (url) => {
   const urlWithProxy = addProxy(url);
   return axios.get(urlWithProxy)
     .then((resp) => parse(resp.data.contents))
-    .catch((error) => { throw error; });
+    .catch(() => {
+      throw new Error('errors.network');
+    });
 };
 
 function updateRss(feed, watchedState) {
@@ -45,7 +47,7 @@ function updateRss(feed, watchedState) {
       }, 5000);
     })
     .catch((error) => {
-      state.feedback = error;
+      state.feedback = i18next.t(error.message);
       throw new Error(error);
     });
 }
@@ -142,7 +144,7 @@ function app() {
         updateRss(feed, watchedState);
       })
       .catch((e) => {
-        watchedState.error = e.message;
+        watchedState.error = i18next.t(e.message);
         watchedState.form.status = 'failed';
       });
   }
@@ -151,6 +153,7 @@ function app() {
     event.preventDefault();
     submitHandler(event.currentTarget);
   });
+
   elements.modal.container.addEventListener('show.bs.modal', (event) => {
     const { postId } = event.relatedTarget.dataset;
     if (watchedState.data.viewedPostsId.includes(postId) || postId === undefined) return;
