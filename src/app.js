@@ -7,6 +7,8 @@ import initView from './view';
 import parse from './parser';
 import init from './init';
 
+init();
+
 const addProxy = (url) => {
   const urlWithProxy = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
   urlWithProxy.searchParams.set('url', url);
@@ -49,7 +51,6 @@ function updateRss(feed, watchedState) {
 }
 
 function app() {
-  init();
   const elements = {
     form: document.querySelector('.rss-form'),
     submit: document.querySelector('#submit'),
@@ -146,7 +147,6 @@ function app() {
       });
   }
 
-  console.log(elements);
   elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
     submitHandler(event.currentTarget);
