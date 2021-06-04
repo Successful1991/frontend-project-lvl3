@@ -45,9 +45,9 @@ const renderForm = (status, elements, watchedState) => {
       renderSuccess(elements, i18next.t('messages.success'));
       break;
     case 'getting':
-      elements.url.setAttribute('disabled', '');
-      elements.url.setAttribute('readonly', '');
-      elements.submit.setAttribute('disabled', '');
+      elements.url.setAttribute('disabled', 'disabled');
+      elements.url.setAttribute('readonly', true);
+      elements.submit.setAttribute('disabled', 'disabled');
       break;
     case 'failed':
       elements.url.removeAttribute('disabled');
