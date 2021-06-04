@@ -40,11 +40,13 @@ const renderForm = (status, elements, watchedState) => {
     case 'filling':
       elements.form.reset();
       elements.url.removeAttribute('disable');
+      elements.url.removeAttribute('readonly');
       elements.submit.removeAttribute('disable');
       renderSuccess(elements, i18next.t('messages.success'));
       break;
     case 'getting':
       elements.url.setAttribute('disable', true);
+      elements.url.setAttribute('readonly', true);
       elements.submit.setAttribute('disable', true);
       break;
     case 'failed':
