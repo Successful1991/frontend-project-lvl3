@@ -19,7 +19,7 @@ const addProxy = (url) => {
 const getRss = async (url) => {
   const urlWithProxy = addProxy(url);
   return axios.get(urlWithProxy)
-    .then((resp) => parse(resp.data.contents))
+    .then((resp) => resp.data.contents)
     .catch(() => {
       throw new Error('errors.network');
     });
@@ -28,6 +28,7 @@ const getRss = async (url) => {
 function updateRss(feed, watchedState) {
   const state = watchedState;
   getRss(feed.url)
+    .then((resp) => parse(resp))
     .then((data) => {
       const items = data.items.reduce((acc, item) => {
         const id = _.uniqueId();
@@ -110,7 +111,6 @@ function app() {
     const formData = new FormData(form);
     const url = formData.get('url');
     const error = isValidUrl(url, watchedState.rssUrl);
-
     if (error) {
       const errorMessage = i18next.t([`form.errors.${error.type}`, 'form.errors.default']);
       watchedState.form.fields.url = {
@@ -126,6 +126,7 @@ function app() {
     watchedState.form.status = 'getting';
 
     getRss(url)
+      .then((resp) => parse(resp))
       .then((data) => {
         const id = _.uniqueId();
         const feed = {
