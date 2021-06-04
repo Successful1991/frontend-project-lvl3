@@ -36,18 +36,17 @@ const renderPosts = (feeds, elements) => {
 };
 
 const renderForm = (status, elements, watchedState) => {
-  const { url } = elements.url;
   switch (status) {
     case 'filling':
       elements.form.reset();
       elements.url.removeAttribute('disabled');
-      url.ReadOnly = false;
+      elements.url.removeAttribute('readonly');
       elements.submit.removeAttribute('disabled');
       renderSuccess(elements, i18next.t('messages.success'));
       break;
     case 'getting':
       elements.url.setAttribute('disabled', 'disabled');
-      url.ReadOnly = true;
+      elements.url.setAttribute('readonly', true);
       elements.submit.setAttribute('disabled', 'disabled');
       break;
     case 'failed':
