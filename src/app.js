@@ -147,25 +147,22 @@ function app() {
   }
 
   console.log(elements);
-  function handler() {
-    console.log(document.querySelector('.rss-form'));
-    elements.form.addEventListener('submit', (event) => {
-      event.preventDefault();
-      submitHandler(event.currentTarget);
-    });
-    elements.modal.container.addEventListener('show.bs.modal', (event) => {
-      const { postId } = event.relatedTarget.dataset;
-      if (watchedState.data.viewedPostsId.includes(postId) || postId === undefined) return;
-      const post = _.find(watchedState.data.posts, { id: postId });
-      watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
-      post.showed = true;
+  elements.form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    submitHandler(event.currentTarget);
+  });
+  elements.modal.container.addEventListener('show.bs.modal', (event) => {
+    const { postId } = event.relatedTarget.dataset;
+    if (watchedState.data.viewedPostsId.includes(postId) || postId === undefined) return;
+    const post = _.find(watchedState.data.posts, { id: postId });
+    watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
+    post.showed = true;
 
-      watchedState.modal = {
-        post,
-      };
-    });
-  }
-  handler();
+    watchedState.modal = {
+      post,
+    };
+  });
+
   return true;
 }
 
