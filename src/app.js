@@ -31,8 +31,8 @@ const getRss = async (url) => {
 };
 
 function updateRss(watchedState) {
-  const promises = watchedState.feeds.map((feed) =>
-    getRss(feed.url)
+  const promises = watchedState.feeds.map((feed) => {
+    return getRss(feed.url)
       .then((resp) => parse(resp))
       .then((data) => {
         const items = data.items.reduce((acc, item) => {
@@ -60,8 +60,8 @@ function updateRss(watchedState) {
         watchedState.error = getErrorType(error);
         // eslint-disable-next-line no-param-reassign
         watchedState.form.status = 'failed';
-      })
-  );
+      });
+  });
 
   Promise.all(promises).finally(() => {
     setTimeout(() => {
