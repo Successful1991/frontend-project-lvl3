@@ -27,16 +27,20 @@ const renderFeeds = (data, elements) => {
 const renderPosts = (feeds, elements, i18next) => {
   const postsEl = elements.posts;
   postsEl.innerHTML = '';
-  const posts = feeds.map((item) => `<li class="list-group-item d-flex justify-content-between align-items-start" data-post-element>
+  const posts = feeds.map(
+    (item) => `<li class="list-group-item d-flex justify-content-between align-items-start" data-post-element>
     <a href="${item.link}" class="${item.showed ? 'fw-normal' : 'fw-bold'}">${item.title}</a>
-    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal" data-post-id="${item.id}">
+    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal" data-post-id="${
+      item.id
+    }">
   ${i18next.t('form.button')}
-  </button></li>`);
+  </button></li>`
+  );
   const postsHtml = posts.join('');
   postsEl.innerHTML = postsHtml;
 };
 
-const renderForm = (status, elements, message, i18next) => {
+const renderForm = (status, elements, i18next) => {
   switch (status) {
     case 'filling':
       elements.form.reset();
@@ -54,7 +58,6 @@ const renderForm = (status, elements, message, i18next) => {
       elements.url.removeAttribute('disabled');
       elements.submit.removeAttribute('disabled');
       elements.url.removeAttribute('readonly');
-      renderError(elements, message, i18next);
       break;
     default:
       throw new Error(`Unknown form status: ${status}`);
@@ -105,7 +108,10 @@ function initView(state, elements, i18next) {
         renderError(elements, value.error, i18next);
         break;
       case 'form.status':
-        renderForm(value, elements, this.error, i18next);
+        renderForm(value, elements, i18next);
+        break;
+      case 'error':
+        renderError(elements, value, i18next);
         break;
       case 'feedback':
         renderSuccess(elements, value, i18next);
