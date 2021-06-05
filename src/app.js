@@ -1,6 +1,5 @@
 import * as yup from 'yup';
 import axios from 'axios';
-import i18next from 'i18next';
 import _ from 'lodash';
 
 import initView from './view';
@@ -8,7 +7,6 @@ import parse from './parser';
 import init from './init';
 
 const timeRepeatUpdateMs = 5000;
-init();
 
 const addProxy = (url) => {
   const urlWithProxy = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
@@ -17,6 +15,16 @@ const addProxy = (url) => {
   return urlWithProxy.toString();
 };
 
+function getErrorType(e) {
+  if (e.isAxiosError) {
+    return 'errors.network';
+  }
+  if (e.isParsingError) {
+    return 'errors.noValidRss';
+  }
+  return 'errors.default';
+}
+
 const getRss = async (url) => {
   const urlWithProxy = addProxy(url);
   return axios.get(urlWithProxy)
@@ -24,7 +32,7 @@ const getRss = async (url) => {
 };
 
 function updateRss(watchedState) {
-  const promises = watchedState.data.feeds.map((feed) => (getRss(feed.url)
+  const promises = watchedState.feeds.map((feed) => (getRss(feed.url)
     .then((resp) => parse(resp))
     .then((data) => {
       const items = data.items.reduce((acc, item) => {
@@ -38,13 +46,14 @@ function updateRss(watchedState) {
       }, []);
 
       if (_.size(items) > 0) {
-        watchedState.data.posts.unshift(...items);
+        watchedState.posts.unshift(...items);
       }
     })
     .catch((error) => {
       // eslint-disable-next-line no-param-reassign
-      watchedState.feedback = i18next.t(error.message);
-      throw new Error(error);
+      watchedState.error = getErrorType(error);
+      // eslint-disable-next-line no-param-reassign
+      watchedState.form.status = 'failed';
     })
   ));
 
@@ -56,17 +65,7 @@ function updateRss(watchedState) {
     });
 }
 
-function getErrorType(e) {
-  if (e.isAxiosError) {
-    return i18next.t('errors.network');
-  }
-  if (e.isParsingError) {
-    return i18next.t('errors.noValidRss');
-  }
-  return i18next.t('errors.default');
-}
-
-function app() {
+function app(i18next) {
   const elements = {
     form: document.querySelector('.rss-form'),
     submit: document.querySelector('#submit'),
@@ -97,11 +96,9 @@ function app() {
       post: null,
     },
     rssUrl: [],
-    data: {
-      feeds: [],
-      posts: [],
-      viewedPostsId: [],
-    },
+    feeds: [],
+    posts: [],
+    viewedPostsId: [],
     feedback: null,
     error: null,
     ui: {
@@ -119,13 +116,13 @@ function app() {
     }
   };
 
-  const watchedState = initView(state, elements);
+  const watchedState = initView(state, elements, i18next);
   function submitHandler(form) {
     const formData = new FormData(form);
     const url = formData.get('url');
     const error = isValidUrl(url, watchedState.rssUrl);
     if (error) {
-      const errorMessage = i18next.t([`form.errors.${error.type}`, 'form.errors.default']);
+      const errorMessage = `form.errors.${error.type}`;
       watchedState.form.fields.url = {
         valid: false,
         error: errorMessage,
@@ -140,24 +137,23 @@ function app() {
 
     getRss(url)
       .then((resp) => parse(resp))
-      .then((data) => {
+      .then((resp) => {
         const id = _.uniqueId();
         const feed = {
-          title: data.title,
-          description: data.description,
-          link: data.link,
+          title: resp.title,
+          description: resp.description,
+          link: resp.link,
           url,
           id,
         };
-        const items = data.items.map((item) => ({ ...item, feedId: id, id: _.uniqueId() }));
+        const items = resp.items.map((item) => ({ ...item, feedId: id, id: _.uniqueId() }));
         watchedState.rssUrl.push(url);
-        watchedState.data.feeds.unshift(feed);
-        watchedState.data.posts.unshift(...items);
-        watchedState.feedback = i18next.t('messages.success');
+        watchedState.feeds.unshift(feed);
+        watchedState.posts.unshift(...items);
+        watchedState.feedback = 'messages.success';
         watchedState.form.status = 'filling';
       })
       .catch((e) => {
-        console.log(e);
         watchedState.error = getErrorType(e);
         watchedState.form.status = 'failed';
       });
@@ -170,8 +166,9 @@ function app() {
 
   elements.modal.container.addEventListener('show.bs.modal', (event) => {
     const { postId } = event.relatedTarget.dataset;
-    if (watchedState.data.viewedPostsId.includes(postId) || postId === undefined) return;
-    const post = _.find(watchedState.data.posts, { id: postId });
+    if (watchedState.viewedPostsId.includes(postId) || postId === undefined) return;
+
+    const post = _.find(watchedState.posts, { id: postId });
     watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
     post.showed = true;
 
@@ -185,4 +182,9 @@ function app() {
   return true;
 }
 
-export default app;
+function initApp() {
+  const i18next = init();
+  app(i18next);
+}
+
+export default initApp;
