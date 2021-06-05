@@ -14,7 +14,7 @@
 	"parser": "babel-eslint",
 	"rules": {
 		"prettier/prettier": ["error", {}, {
-			"usePrettierrc": true
+			"usePrettierrc": false
 		}],
 		"arrow-body-style": "off",
 		"prefer-arrow-callback": "off",
