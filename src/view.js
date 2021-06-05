@@ -64,8 +64,8 @@ const renderForm = (status, elements, watchedState, i18next) => {
 };
 
 const changeFontWidth = (element) => {
-  element.classList.remove('font-weight-bold', 'fw-bold');
-  element.classList.add('font-weight-normal', 'fw-normal');
+  element.classList.remove('fw-bold');
+  element.classList.add('fw-normal');
 };
 
 const renderModal = (modal, elements) => {

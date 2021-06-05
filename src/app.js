@@ -174,16 +174,18 @@ function app(i18next) {
   });
 
   elements.posts.addEventListener('click', (event) => {
-    if (!_.has(event, 'relatedTarget.dataset.postId')) {
+    if (!_.has(event.target.dataset, 'postId')) {
       return;
     }
-    const { postId } = event.relatedTarget.dataset;
+    const { postId } = event.target.dataset;
     if (watchedState.viewedPostsId.includes(postId) || postId === undefined) {
       return;
     }
 
     const post = _.find(watchedState.posts, { id: postId });
-    watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
+    console.log(event);
+    console.log(event.target.previousElementSibling);
+    watchedState.ui.lastShowingPost = event.target.previousElementSibling;
     post.showed = true;
     watchedState.modal = {
       post,
