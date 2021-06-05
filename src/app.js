@@ -1,28 +1,31 @@
-import * as yup from 'yup';
-import axios from 'axios';
-import _ from 'lodash';
+import * as yup from "yup";
+import axios from "axios";
+import _ from "lodash";
 
-import initView from './view';
-import parse from './parser';
-import init from './init';
+import initView from "./view";
+import parse from "./parser";
+import init from "./init";
 
 const timeRepeatUpdateMs = 5000;
 
 const addProxy = (url) => {
-  const urlWithProxy = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
-  urlWithProxy.searchParams.set('url', url);
-  urlWithProxy.searchParams.set('disableCache', true);
+  const urlWithProxy = new URL(
+    "/get",
+    "https://hexlet-allorigins.herokuapp.com"
+  );
+  urlWithProxy.searchParams.set("url", url);
+  urlWithProxy.searchParams.set("disableCache", true);
   return urlWithProxy.toString();
 };
 
 function getErrorType(e) {
   if (e.isAxiosError) {
-    return 'errors.network';
+    return "errors.network";
   }
   if (e.isParsingError) {
-    return 'errors.noValidRss';
+    return "errors.noValidRss";
   }
-  return 'errors.default';
+  return "errors.default";
 }
 
 const getRss = async (url) => {
@@ -31,8 +34,8 @@ const getRss = async (url) => {
 };
 
 function updateRss(watchedState) {
-  const promises = watchedState.feeds.map((feed) =>
-    getRss(feed.url)
+  const promises = watchedState.feeds.map((feed) => {
+    return getRss(feed.url)
       .then((resp) => parse(resp))
       .then((data) => {
         const items = data.items.reduce((acc, item) => {
@@ -59,9 +62,9 @@ function updateRss(watchedState) {
         // eslint-disable-next-line no-param-reassign
         watchedState.error = getErrorType(error);
         // eslint-disable-next-line no-param-reassign
-        watchedState.form.status = 'failed';
-      })
-  );
+        watchedState.form.status = "failed";
+      });
+  });
 
   Promise.all(promises).finally(() => {
     setTimeout(() => {
@@ -72,23 +75,23 @@ function updateRss(watchedState) {
 
 function app(i18next) {
   const elements = {
-    form: document.querySelector('.rss-form'),
-    submit: document.querySelector('#submit'),
-    url: document.querySelector('#form-url'),
-    feeds: document.querySelector('[data-feeds-wrap]'),
-    posts: document.querySelector('[data-posts-wrap]'),
-    feedback: document.querySelector('[data-feedback-message]'),
+    form: document.querySelector(".rss-form"),
+    submit: document.querySelector("#submit"),
+    url: document.querySelector("#form-url"),
+    feeds: document.querySelector("[data-feeds-wrap]"),
+    posts: document.querySelector("[data-posts-wrap]"),
+    feedback: document.querySelector("[data-feedback-message]"),
     modal: {
-      container: document.querySelector('.modal'),
-      title: document.querySelector('[data-modal-label]'),
-      content: document.querySelector('.modal-body'),
-      link: document.querySelector('[data-modal-link]'),
+      container: document.querySelector(".modal"),
+      title: document.querySelector("[data-modal-label]"),
+      content: document.querySelector(".modal-body"),
+      link: document.querySelector("[data-modal-link]"),
     },
   };
 
   const state = {
     form: {
-      status: 'filling', // filling, getting, failed, success
+      status: "filling", // filling, getting, failed, success
       fields: {
         url: {
           valid: true,
@@ -124,7 +127,7 @@ function app(i18next) {
   const watchedState = initView(state, elements, i18next);
   function submitHandler(form) {
     const formData = new FormData(form);
-    const url = formData.get('url');
+    const url = formData.get("url");
     const error = isValidUrl(url, watchedState.rssUrl);
     if (error) {
       const errorMessage = `form.errors.${error.type}`;
@@ -138,7 +141,7 @@ function app(i18next) {
       valid: true,
       error: null,
     };
-    watchedState.form.status = 'getting';
+    watchedState.form.status = "getting";
 
     getRss(url)
       .then((resp) => parse(resp))
@@ -159,22 +162,22 @@ function app(i18next) {
         watchedState.rssUrl.push(url);
         watchedState.feeds.unshift(feed);
         watchedState.posts.unshift(...items);
-        watchedState.feedback = 'messages.success';
-        watchedState.form.status = 'filling';
+        watchedState.feedback = "messages.success";
+        watchedState.form.status = "filling";
       })
       .catch((e) => {
         watchedState.error = getErrorType(e);
-        watchedState.form.status = 'failed';
+        watchedState.form.status = "failed";
       });
   }
 
-  elements.form.addEventListener('submit', (event) => {
+  elements.form.addEventListener("submit", (event) => {
     event.preventDefault();
     submitHandler(event.currentTarget);
   });
 
-  elements.posts.addEventListener('click', (event) => {
-    if (!_.has(event.target.dataset, 'postId')) {
+  elements.posts.addEventListener("click", (event) => {
+    if (!_.has(event.target.dataset, "postId")) {
       return;
     }
     const { postId } = event.target.dataset;
