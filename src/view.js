@@ -101,7 +101,7 @@ const renderFormError = (field, elements) => {
 };
 
 function initView(state, elements, i18next) {
-  const watchedState = onChange(state, function (path, value) {
+  const watchedState = onChange(state, function watchedState(path, value) {
     switch (path) {
       case 'form.fields.url':
         renderFormError(value, elements);
