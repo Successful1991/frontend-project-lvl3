@@ -44,7 +44,7 @@ const renderPosts = (feeds, elements, i18next) => {
 
 const renderForm = (status, elements, watchedState, i18next) => {
   switch (status) {
-    case "filling":
+    case 'filling':
       elements.form.reset();
       elements.url.removeAttribute('disabled');
       elements.url.removeAttribute('readonly');
@@ -59,7 +59,7 @@ const renderForm = (status, elements, watchedState, i18next) => {
     case 'failed':
       elements.url.removeAttribute('disabled');
       elements.submit.removeAttribute('disabled');
-      elements.url.removeAttribute('readonly')
+      elements.url.removeAttribute('readonly');
       renderError(elements, watchedState.error, i18next);
       break;
     default:
