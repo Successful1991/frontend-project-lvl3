@@ -2,7 +2,8 @@
 	"translation": {
 		"errors": {
 			"noValidRss": "Ресурс не содержит валидный RSS",
-			"network": "Ошибка сети"
+			"network": "Ошибка сети",
+			"default": "Неизвесная ошибка"
 		},
 		"messages": {
 			"success": "RSS успешно загружен"

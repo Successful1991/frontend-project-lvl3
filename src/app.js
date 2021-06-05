@@ -7,6 +7,7 @@ import initView from './view';
 import parse from './parser';
 import init from './init';
 
+const timeRepeatUpdateMs = 5000;
 init();
 
 const addProxy = (url) => {
@@ -19,15 +20,11 @@ const addProxy = (url) => {
 const getRss = async (url) => {
   const urlWithProxy = addProxy(url);
   return axios.get(urlWithProxy)
-    .then((resp) => resp.data.contents)
-    .catch(() => {
-      throw new Error('errors.network');
-    });
+    .then((resp) => resp.data.contents);
 };
 
-function updateRss(feed, watchedState) {
-  const state = watchedState;
-  getRss(feed.url)
+function updateRss(watchedState) {
+  const promises = watchedState.data.feeds.map((feed) => (getRss(feed.url)
     .then((resp) => parse(resp))
     .then((data) => {
       const items = data.items.reduce((acc, item) => {
@@ -43,14 +40,30 @@ function updateRss(feed, watchedState) {
       if (_.size(items) > 0) {
         watchedState.data.posts.unshift(...items);
       }
-      setTimeout(() => {
-        updateRss(feed, watchedState);
-      }, 5000);
     })
     .catch((error) => {
-      state.feedback = i18next.t(error.message);
+      // eslint-disable-next-line no-param-reassign
+      watchedState.feedback = i18next.t(error.message);
       throw new Error(error);
+    })
+  ));
+
+  Promise.all(promises)
+    .finally(() => {
+      setTimeout(() => {
+        updateRss(watchedState);
+      }, timeRepeatUpdateMs);
     });
+}
+
+function getErrorType(e) {
+  if (e.isAxiosError) {
+    return i18next.t('errors.network');
+  }
+  if (e.isParsingError) {
+    return i18next.t('errors.noValidRss');
+  }
+  return i18next.t('errors.default');
 }
 
 function app() {
@@ -142,10 +155,10 @@ function app() {
         watchedState.data.posts.unshift(...items);
         watchedState.feedback = i18next.t('messages.success');
         watchedState.form.status = 'filling';
-        updateRss(feed, watchedState);
       })
       .catch((e) => {
-        watchedState.error = i18next.t(e.message);
+        console.log(e);
+        watchedState.error = getErrorType(e);
         watchedState.form.status = 'failed';
       });
   }
@@ -157,7 +170,6 @@ function app() {
 
   elements.modal.container.addEventListener('show.bs.modal', (event) => {
     const { postId } = event.relatedTarget.dataset;
-    console.log(159, postId);
     if (watchedState.data.viewedPostsId.includes(postId) || postId === undefined) return;
     const post = _.find(watchedState.data.posts, { id: postId });
     watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
@@ -167,7 +179,9 @@ function app() {
       post,
     };
   });
-
+  setTimeout(() => {
+    updateRss(watchedState);
+  }, 5000);
   return true;
 }
 

@@ -71,9 +71,6 @@ const renderModal = (modal, elements) => {
   modalEl.title.textContent = title;
   modalEl.content.textContent = description;
   modalEl.link.setAttribute('href', link);
-  console.log(74, modal);
-  console.log(75, title);
-  console.log(76, description);
 };
 
 const clearInput = (field) => {
