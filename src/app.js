@@ -183,11 +183,11 @@ function app(i18next) {
     }
 
     const post = _.find(watchedState.posts, { id: postId });
+    watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
     post.showed = true;
     watchedState.modal = {
       post,
     };
-    watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
   });
 
   // elements.modal.container.addEventListener('shown.bs.modal', (event) => {
