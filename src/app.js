@@ -79,7 +79,7 @@ function app(i18next) {
     posts: document.querySelector('[data-posts-wrap]'),
     feedback: document.querySelector('[data-feedback-message]'),
     modal: {
-      container: document.querySelector('[data-modal]'),
+      container: document.querySelector('.modal'),
       title: document.querySelector('[data-modal-label]'),
       content: document.querySelector('.modal-body'),
       link: document.querySelector('[data-modal-link]'),
@@ -173,7 +173,7 @@ function app(i18next) {
     submitHandler(event.currentTarget);
   });
 
-  elements.modal.container.addEventListener('show.bs.modal', (event) => {
+  elements.modal.container.addEventListener('shown.bs.modal', (event) => {
     const { postId } = event.relatedTarget.dataset;
     if (watchedState.viewedPostsId.includes(postId) || postId === undefined) return;
 
