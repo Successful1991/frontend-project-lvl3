@@ -13,7 +13,11 @@
 	],
 	"parser": "babel-eslint",
 	"rules": {
-		"max-len": ["error", { "code": 150 }],
+		"prettier/prettier": ["error", {}, {
+			"usePrettierrc": true
+		}],
+		"arrow-body-style": "off",
+		"prefer-arrow-callback": "off",
 		"quotes": ["error", "single"],
 		"no-console": 0,
 		"import/extensions": 0,
