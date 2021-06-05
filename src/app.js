@@ -173,7 +173,9 @@ function app(i18next) {
     submitHandler(event.currentTarget);
   });
 
-  elements.modal.container.addEventListener('shown.bs.modal', (event) => {
+  // eslint-disable-next-line no-undef
+  const myModal = new bootstrap.Modal(document.getElementById('modal'));
+  elements.posts.addEventListener('click', (event) => {
     const { postId } = event.relatedTarget.dataset;
     if (watchedState.viewedPostsId.includes(postId) || postId === undefined) {
       return;
@@ -182,11 +184,26 @@ function app(i18next) {
     const post = _.find(watchedState.posts, { id: postId });
     watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
     post.showed = true;
-
     watchedState.modal = {
       post,
     };
+    myModal.show();
   });
+
+  // elements.modal.container.addEventListener('shown.bs.modal', (event) => {
+  //   const { postId } = event.relatedTarget.dataset;
+  //   if (watchedState.viewedPostsId.includes(postId) || postId === undefined) {
+  //     return;
+  //   }
+  //
+  //   const post = _.find(watchedState.posts, { id: postId });
+  //   watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
+  //   post.showed = true;
+  //
+  //   watchedState.modal = {
+  //     post,
+  //   };
+  // });
   setTimeout(() => {
     updateRss(watchedState);
   }, 5000);
