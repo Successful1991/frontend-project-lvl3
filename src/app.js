@@ -183,8 +183,6 @@ function app(i18next) {
     }
 
     const post = _.find(watchedState.posts, { id: postId });
-    console.log(event);
-    console.log(event.target.previousElementSibling);
     watchedState.ui.lastShowingPost = event.target.previousElementSibling;
     post.showed = true;
     watchedState.modal = {
@@ -192,20 +190,6 @@ function app(i18next) {
     };
   });
 
-  // elements.modal.container.addEventListener('shown.bs.modal', (event) => {
-  //   const { postId } = event.relatedTarget.dataset;
-  //   if (watchedState.viewedPostsId.includes(postId) || postId === undefined) {
-  //     return;
-  //   }
-  //
-  //   const post = _.find(watchedState.posts, { id: postId });
-  //   watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
-  //   post.showed = true;
-  //
-  //   watchedState.modal = {
-  //     post,
-  //   };
-  // });
   setTimeout(() => {
     updateRss(watchedState);
   }, 5000);
