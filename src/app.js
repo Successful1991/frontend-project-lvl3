@@ -9,10 +9,7 @@ import init from './init';
 const timeRepeatUpdateMs = 5000;
 
 const addProxy = (url) => {
-  const urlWithProxy = new URL(
-    '/get',
-    'https://hexlet-allorigins.herokuapp.com'
-  );
+  const urlWithProxy = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
   urlWithProxy.searchParams.set('url', url);
   urlWithProxy.searchParams.set('disableCache', true);
   return urlWithProxy.toString();
@@ -84,7 +81,7 @@ function app(i18next) {
     modal: {
       container: document.querySelector('[data-modal]'),
       title: document.querySelector('[data-modal-label]'),
-      content: document.querySelector('[data-modal-content]'),
+      content: document.querySelector('.modal-body'),
       link: document.querySelector('[data-modal-link]'),
     },
   };
@@ -178,12 +175,10 @@ function app(i18next) {
 
   elements.modal.container.addEventListener('show.bs.modal', (event) => {
     const { postId } = event.relatedTarget.dataset;
-    if (watchedState.viewedPostsId.includes(postId) || postId === undefined)
-      return;
+    if (watchedState.viewedPostsId.includes(postId) || postId === undefined) return;
 
     const post = _.find(watchedState.posts, { id: postId });
-    watchedState.ui.lastShowingPost =
-      event.relatedTarget.previousElementSibling;
+    watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
     post.showed = true;
 
     watchedState.modal = {
