@@ -9,7 +9,10 @@ import init from './init';
 const timeRepeatUpdateMs = 5000;
 
 const addProxy = (url) => {
-  const urlWithProxy = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
+  const urlWithProxy = new URL(
+    '/get',
+    'https://hexlet-allorigins.herokuapp.com'
+  );
   urlWithProxy.searchParams.set('url', url);
   urlWithProxy.searchParams.set('disableCache', true);
   return urlWithProxy.toString();
@@ -27,42 +30,47 @@ function getErrorType(e) {
 
 const getRss = async (url) => {
   const urlWithProxy = addProxy(url);
-  return axios.get(urlWithProxy)
-    .then((resp) => resp.data.contents);
+  return axios.get(urlWithProxy).then((resp) => resp.data.contents);
 };
 
 function updateRss(watchedState) {
-  const promises = watchedState.feeds.map((feed) => (getRss(feed.url)
-    .then((resp) => parse(resp))
-    .then((data) => {
-      const items = data.items.reduce((acc, item) => {
-        const id = _.uniqueId();
-        if (_.includes(watchedState.posts, item)) {
-          return [...acc, {
-            ...item, feedId: feed.id, id, showed: false,
-          }];
+  const promises = watchedState.feeds.map((feed) =>
+    getRss(feed.url)
+      .then((resp) => parse(resp))
+      .then((data) => {
+        const items = data.items.reduce((acc, item) => {
+          const id = _.uniqueId();
+          if (_.includes(watchedState.posts, item)) {
+            return [
+              ...acc,
+              {
+                ...item,
+                feedId: feed.id,
+                id,
+                showed: false,
+              },
+            ];
+          }
+          return acc;
+        }, []);
+
+        if (_.size(items) > 0) {
+          watchedState.posts.unshift(...items);
         }
-        return acc;
-      }, []);
+      })
+      .catch((error) => {
+        // eslint-disable-next-line no-param-reassign
+        watchedState.error = getErrorType(error);
+        // eslint-disable-next-line no-param-reassign
+        watchedState.form.status = 'failed';
+      })
+  );
 
-      if (_.size(items) > 0) {
-        watchedState.posts.unshift(...items);
-      }
-    })
-    .catch((error) => {
-      // eslint-disable-next-line no-param-reassign
-      watchedState.error = getErrorType(error);
-      // eslint-disable-next-line no-param-reassign
-      watchedState.form.status = 'failed';
-    })
-  ));
-
-  Promise.all(promises)
-    .finally(() => {
-      setTimeout(() => {
-        updateRss(watchedState);
-      }, timeRepeatUpdateMs);
-    });
+  Promise.all(promises).finally(() => {
+    setTimeout(() => {
+      updateRss(watchedState);
+    }, timeRepeatUpdateMs);
+  });
 }
 
 function app(i18next) {
@@ -146,7 +154,11 @@ function app(i18next) {
           url,
           id,
         };
-        const items = resp.items.map((item) => ({ ...item, feedId: id, id: _.uniqueId() }));
+        const items = resp.items.map((item) => ({
+          ...item,
+          feedId: id,
+          id: _.uniqueId(),
+        }));
         watchedState.rssUrl.push(url);
         watchedState.feeds.unshift(feed);
         watchedState.posts.unshift(...items);
@@ -166,10 +178,12 @@ function app(i18next) {
 
   elements.modal.container.addEventListener('show.bs.modal', (event) => {
     const { postId } = event.relatedTarget.dataset;
-    if (watchedState.viewedPostsId.includes(postId) || postId === undefined) return;
+    if (watchedState.viewedPostsId.includes(postId) || postId === undefined)
+      return;
 
     const post = _.find(watchedState.posts, { id: postId });
-    watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
+    watchedState.ui.lastShowingPost =
+      event.relatedTarget.previousElementSibling;
     post.showed = true;
 
     watchedState.modal = {
