@@ -4,7 +4,6 @@ const parse = (string) => {
   const parser = new DOMParser();
   const parsedDoc = parser.parseFromString(string, 'application/xml');
   const errorEl = parsedDoc.querySelector('parsererror');
-  console.log(parsedDoc);
   if (errorEl) {
     throw new Error(i18next.t('errors.noValidRss'));
   }
