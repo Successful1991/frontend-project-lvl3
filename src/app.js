@@ -174,6 +174,9 @@ function app(i18next) {
   });
 
   elements.posts.addEventListener('click', (event) => {
+    if (!_.has(event, 'relatedTarget.dataset.postId')) {
+      return;
+    }
     const { postId } = event.relatedTarget.dataset;
     if (watchedState.viewedPostsId.includes(postId) || postId === undefined) {
       return;
