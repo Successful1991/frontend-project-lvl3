@@ -157,6 +157,7 @@ function app() {
 
   elements.modal.container.addEventListener('show.bs.modal', (event) => {
     const { postId } = event.relatedTarget.dataset;
+    console.log(159, postId);
     if (watchedState.data.viewedPostsId.includes(postId) || postId === undefined) return;
     const post = _.find(watchedState.data.posts, { id: postId });
     watchedState.ui.lastShowingPost = event.relatedTarget.previousElementSibling;
