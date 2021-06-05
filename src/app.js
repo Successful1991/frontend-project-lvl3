@@ -32,7 +32,7 @@ const getRss = async (url) => {
 
 function updateRss(watchedState) {
   const promises = watchedState.feeds.map((feed) => {
-    return getRss(feed.url)
+    const result = getRss(feed.url)
       .then((resp) => parse(resp))
       .then((data) => {
         const items = data.items.reduce((acc, item) => {
@@ -61,6 +61,7 @@ function updateRss(watchedState) {
         // eslint-disable-next-line no-param-reassign
         watchedState.form.status = 'failed';
       });
+    return result;
   });
 
   Promise.all(promises).finally(() => {
