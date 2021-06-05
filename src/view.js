@@ -25,21 +25,45 @@ const renderFeeds = (data, elements) => {
 };
 
 const renderPosts = (feeds, elements, i18next) => {
+  console.log(feeds);
   const postsEl = elements.posts;
   postsEl.innerHTML = '';
-  const posts = feeds.map(
-    (
-      item
-    ) => `<li class="list-group-item d-flex justify-content-between align-items-start" data-post-element>
-      <a href="${item.link}" class="${item.showed ? 'fw-normal' : 'fw-bold'}">${
-      item.title
-    }</a>
-      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal" data-post-id="${
-        item.id
-      }">${i18next.t('form.button')}</button></li>`
-  );
-  const postsHtml = posts.join('');
-  postsEl.innerHTML = postsHtml;
+  const posts = feeds.map((item) => {
+    const li = document.createElement('li');
+    li.classList =
+      'list-group-item d-flex justify-content-between align-items-start';
+    li.dataset.dataPostElement = '';
+    const a = document.createElement('a');
+    a.setAttribute('href', item.link);
+    a.classList = item.showed ? 'fw-normal' : 'fw-bold';
+    a.textContent = item.title;
+    const button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.classList = 'btn btn-primary btn-sm';
+    button.dataset.bsToggle = 'modal';
+    button.dataset.bsTarget = '#modal';
+    button.dataset.postId = item.id;
+    button.textContent = i18next.t('form.button');
+
+    li.append(a);
+    li.append(button);
+    return li;
+  });
+  // const posts = feeds.map(
+  //   (
+  //     item
+  //   ) => `<li class="list-group-item d-flex justify-content-between align-items-start" data-post-element>
+  //     <a href="${item.link}" class="${item.showed ? 'fw-normal' : 'fw-bold'}">${
+  //     item.title
+  //   }</a>
+  //     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal" data-post-id="${
+  //       item.id
+  //     }">${i18next.t('form.button')}</button></li>`
+  // );
+  // const postsHtml = posts.join('');
+  // postsEl.innerHTML = postsHtml;
+  console.log(posts);
+  postsEl.append(...posts);
 };
 
 const renderForm = (status, elements, watchedState, i18next) => {

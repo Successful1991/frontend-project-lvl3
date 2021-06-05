@@ -16,6 +16,8 @@
 		"prettier/prettier": ["error", {}, {
 			"usePrettierrc": true
 		}],
+		"arrow-body-style": "off",
+		"prefer-arrow-callback": "off",
 		"quotes": ["off", "single"],
 		"no-console": 0,
 		"import/extensions": 0,
