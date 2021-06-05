@@ -14,11 +14,11 @@
 	"parser": "babel-eslint",
 	"rules": {
 		"prettier/prettier": ["error", {}, {
-			"usePrettierrc": false
+			"usePrettierrc": true
 		}],
 		"arrow-body-style": "off",
 		"prefer-arrow-callback": "off",
-		"quotes": ["off", "single"],
+		"quotes": ["error", "single"],
 		"no-console": 0,
 		"import/extensions": 0,
 		"no-underscore-dangle": [2, { "allow": ["__filename", "__dirname"] }]
