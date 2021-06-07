@@ -1,0 +1,17 @@
+{
+	"title": "Новые уроки на Хекслете",
+	"description": "Практические уроки по программированию",
+	"link": "https://ru.hexlet.io/",
+	"items": [
+		{
+			"title": "Docker / DevOps для программистов",
+			"description": "Цель: Изучить хорошие практики при использовании Docker.",
+			"link": "https://ru.hexlet.io/courses/devops-for-programmers/lessons/docker/theory_unit"
+		},
+		{
+			"title": "Операционные системы и сети / DevOps для программистов",
+			"description": "Цель: Операционные системы и сети",
+			"link": "https://ru.hexlet.io/courses/devops-for-programmers/lessons/os-and-networks/theory_unit"
+		}
+	]
+}

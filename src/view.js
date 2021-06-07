@@ -48,6 +48,9 @@ const renderForm = (status, elements, i18next) => {
       elements.submit.removeAttribute('disabled');
       renderSuccess(elements, 'messages.success', i18next);
       break;
+    case 'success':
+      renderSuccess(elements, 'messages.success', i18next);
+      break;
     case 'getting':
       elements.url.setAttribute('disabled', 'disabled');
       elements.url.setAttribute('readonly', true);
@@ -111,9 +114,6 @@ function initView(state, elements, i18next) {
         break;
       case 'error':
         renderError(elements, value, i18next);
-        break;
-      case 'feedback':
-        renderSuccess(elements, value, i18next);
         break;
       case 'feeds':
         renderFeeds(value, elements);

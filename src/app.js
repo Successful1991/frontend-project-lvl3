@@ -2,11 +2,22 @@ import * as yup from 'yup';
 import axios from 'axios';
 import _ from 'lodash';
 
+import i18n from 'i18next';
+import ru from './language/ru';
 import initView from './view';
 import parse from './parser';
-import init from './init';
 
 const timeRepeatUpdateMs = 5000;
+const schemaRss = yup.string().required().trim().url();
+
+const isValidUrl = (url, rssUrl = []) => {
+  try {
+    schemaRss.notOneOf(rssUrl).validateSync(url);
+    return null;
+  } catch (e) {
+    return e;
+  }
+};
 
 const addProxy = (url) => {
   const urlWithProxy = new URL('/get', 'https://hexlet-allorigins.herokuapp.com');
@@ -71,7 +82,64 @@ function updateRss(watchedState) {
   });
 }
 
-function app(i18next) {
+function submitHandler(state, form) {
+  const watchedState = state;
+  const formData = new FormData(form);
+  const url = formData.get('url');
+  const rssUrlList = watchedState.feeds.reduce((acc, feed) => [...acc, feed.url], []);
+  const error = isValidUrl(url, rssUrlList);
+  if (error) {
+    const errorMessage = `form.errors.${error.type}`;
+    watchedState.form.fields.url = {
+      valid: false,
+      error: errorMessage,
+    };
+    return;
+  }
+  watchedState.form.fields.url = {
+    valid: true,
+    error: null,
+  };
+  watchedState.form.status = 'getting';
+
+  getRss(url)
+    .then((resp) => parse(resp))
+    .then((resp) => {
+      const id = _.uniqueId();
+      const feed = {
+        title: resp.title,
+        description: resp.description,
+        link: resp.link,
+        url,
+        id,
+      };
+      const items = resp.items.map((item) => ({
+        ...item,
+        feedId: id,
+        id: _.uniqueId(),
+      }));
+      watchedState.rssUrl.push(url);
+      watchedState.feeds.unshift(feed);
+      watchedState.posts.unshift(...items);
+      watchedState.form.status = 'success';
+      watchedState.form.status = 'filling';
+    })
+    .catch((e) => {
+      watchedState.error = getErrorType(e);
+      watchedState.form.status = 'failed';
+    });
+}
+
+async function app() {
+  const i18next = i18n.createInstance();
+  await i18next.init({
+    lng: 'ru',
+    resources: {
+      ru,
+    },
+    debug: true,
+  });
+
   const elements = {
     form: document.querySelector('.rss-form'),
     submit: document.querySelector('#submit'),
@@ -111,67 +179,12 @@ function app(i18next) {
       lastShowingPost: null,
     },
   };
-  const schemaRss = yup.string().required().trim().url();
-
-  const isValidUrl = (url, rssUrl = []) => {
-    try {
-      schemaRss.notOneOf(rssUrl).validateSync(url);
-      return null;
-    } catch (e) {
-      return e;
-    }
-  };
 
   const watchedState = initView(state, elements, i18next);
-  function submitHandler(form) {
-    const formData = new FormData(form);
-    const url = formData.get('url');
-    const error = isValidUrl(url, watchedState.rssUrl);
-    if (error) {
-      const errorMessage = `form.errors.${error.type}`;
-      watchedState.form.fields.url = {
-        valid: false,
-        error: errorMessage,
-      };
-      return;
-    }
-    watchedState.form.fields.url = {
-      valid: true,
-      error: null,
-    };
-    watchedState.form.status = 'getting';
-
-    getRss(url)
-      .then((resp) => parse(resp))
-      .then((resp) => {
-        const id = _.uniqueId();
-        const feed = {
-          title: resp.title,
-          description: resp.description,
-          link: resp.link,
-          url,
-          id,
-        };
-        const items = resp.items.map((item) => ({
-          ...item,
-          feedId: id,
-          id: _.uniqueId(),
-        }));
-        watchedState.rssUrl.push(url);
-        watchedState.feeds.unshift(feed);
-        watchedState.posts.unshift(...items);
-        watchedState.feedback = 'messages.success';
-        watchedState.form.status = 'filling';
-      })
-      .catch((e) => {
-        watchedState.error = getErrorType(e);
-        watchedState.form.status = 'failed';
-      });
-  }
 
   elements.form.addEventListener('submit', (event) => {
     event.preventDefault();
-    submitHandler(event.currentTarget);
+    submitHandler(watchedState, event.currentTarget);
   });
 
   elements.posts.addEventListener('click', (event) => {
@@ -193,13 +206,8 @@ function app(i18next) {
 
   setTimeout(() => {
     updateRss(watchedState);
-  }, 5000);
+  }, timeRepeatUpdateMs);
   return true;
 }
 
-function initApp() {
-  const i18next = init();
-  app(i18next);
-}
-
-export default initApp;
+export default app;
