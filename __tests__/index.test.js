@@ -4,8 +4,8 @@ import { readFileSync } from 'fs';
 import parser from '../src/parser';
 
 const getFullPath = (name) => {
-  const _dirname = process.cwd();
-  return path.resolve(_dirname, '__tests__/fixtures', name);
+  const dirname = process.cwd();
+  return path.resolve(dirname, '__tests__/fixtures', name);
 };
 
 const fixtures = {
@@ -37,6 +37,4 @@ test('error network', () => {
 
 nock.disableNetConnect();
 
-
 nock.enableNetConnect();
-
