@@ -8,28 +8,30 @@ const getFullPath = (name) => {
   return path.resolve(_dirname, '__tests__/fixtures', name);
 };
 
-let rss;
-let rssWrong;
-let rssResult;
+const fixtures = {
+  rss: null,
+  rssWrong: null,
+  rssResult: null,
+};
 
 beforeAll(() => {
   const rssWrongPath = getFullPath('wrongRss.xml');
-  rssWrong = readFileSync(rssWrongPath, 'utf8');
+  fixtures.rssWrong = readFileSync(rssWrongPath, 'utf8');
   const rssPath = getFullPath('rss.xml');
-  rss = readFileSync(rssPath, 'utf8');
+  fixtures.rss = readFileSync(rssPath, 'utf8');
   const rssResultPath = getFullPath('rss.json');
   const resultJson = readFileSync(rssResultPath, 'utf8');
-  rssResult = JSON.parse(resultJson);
+  fixtures.rssResult = JSON.parse(resultJson);
 });
 
 test('perser', () => {
-  const result = parser(rss);
-  expect(result).toEqual(rssResult);
+  const result = parser(fixtures.rss);
+  expect(result).toEqual(fixtures.rssResult);
 });
 
 test('error network', () => {
   expect(() => {
-    parser(rssWrong);
+    parser(fixtures.rssWrong);
   }).toThrow(/^errors.noValidRss$/);
 });
 
