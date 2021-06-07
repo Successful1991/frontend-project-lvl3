@@ -2,14 +2,15 @@ import nock from 'nock';
 import path from 'path';
 import { readFileSync } from 'fs';
 import parser from '../src/parser';
-import initApp from '../src/app';
 
 const getFullPath = (name) => {
-  const __dirname = process.cwd();
-  return path.resolve(__dirname, '__tests__/fixtures', name);
+  const _dirname = process.cwd();
+  return path.resolve(_dirname, '__tests__/fixtures', name);
 };
 
-let rss, rssWrong, rssResult;
+let rss;
+let rssWrong;
+let rssResult;
 
 beforeAll(() => {
   const rssWrongPath = getFullPath('wrongRss.xml');
@@ -34,14 +35,6 @@ test('error network', () => {
 
 nock.disableNetConnect();
 
-// test('error network', () => {
-//   const app = initApp();
-//   const urlEl = document.querySelector('[name="url"]');
-//   const submitEl = document.getElementById('submit');
-//   console.log(urlEl);
-//   urlEl.value = 'https://ru.hexlet.io/lessons.rss';
-//   expect(submitEl.click()).toThrowError(/^errors.network$/);
-// });
 
 nock.enableNetConnect();
 
