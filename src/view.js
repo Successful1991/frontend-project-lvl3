@@ -18,10 +18,14 @@ const renderFeeds = (data, elements) => {
   const feedsEl = elements.feeds;
   feedsEl.innerHTML = '';
 
-  data.forEach((feed) => {
-    const feedHtml = `<li class="list-group-item "><h3>${feed.title}</h3><p>${feed.description}</p></li>`;
-    feedsEl.innerHTML = feedHtml;
-  });
+  const feedsList = data.map((feed) => `<li class="list-group-item "><h3>${feed.title}</h3><p>${feed.description}</p></li>`);
+  const feeds = feedsList.join('');
+  feedsEl.innerHTML = `
+  <h2 class="feeds__title">Feeds</h2>
+  <ul class="feeds__list list-group">
+    ${feeds}
+  </ul>
+  `;
 };
 
 const renderPosts = (feeds, elements, i18next) => {
@@ -36,7 +40,12 @@ const renderPosts = (feeds, elements, i18next) => {
     return result;
   });
   const postsHtml = posts.join('');
-  postsEl.innerHTML = postsHtml;
+  postsEl.innerHTML = `
+  <h2 class="posts__title">Posts</h2>
+  <ul class="posts__list list-group">
+  ${postsHtml}
+</ul>
+  `;
 };
 
 const renderForm = (status, elements, i18next) => {

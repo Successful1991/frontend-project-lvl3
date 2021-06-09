@@ -10,9 +10,9 @@ import parse from './parser';
 const timeRepeatUpdateMs = 5000;
 const schemaRss = yup.string().required().trim().url();
 
-const isValidUrl = (url, rssUrl = []) => {
+const validateUrl = (url, rssUrlColl = []) => {
   try {
-    schemaRss.notOneOf(rssUrl).validateSync(url);
+    schemaRss.notOneOf(rssUrlColl).validateSync(url);
     return null;
   } catch (e) {
     return e;
@@ -44,33 +44,42 @@ const getRss = async (url) => {
 function updateRss(watchedState) {
   const promises = watchedState.feeds.map((feed) => {
     const result = getRss(feed.url)
-      .then((resp) => parse(resp))
-      .then((data) => {
-        const items = data.items.reduce((acc, item) => {
+      .then((resp) => {
+        const data = parse(resp);
+        const items = data.items.map((item) => {
           const id = _.uniqueId();
-          if (_.includes(watchedState.posts, item)) {
-            return [
-              ...acc,
-              {
-                ...item,
-                feedId: feed.id,
-                id,
-                showed: false,
-              },
-            ];
-          }
-          return acc;
+          return {
+            ...item,
+            feedId: feed.id,
+            id,
+            showed: false,
+          };
         }, []);
+        const oldItems = watchedState.posts.filter((post) => post.feedId === feed.id);
+        const y = _.differenceWith(oldItems, items, (a, b) => _.isMatchWith(a, b, (a1, b1) => a1 === b1));
+        console.log(y);
+        // const items = data.items.reduce((acc, item) => {
+        //   const id = _.uniqueId();
+        //   if (_.includes(watchedState.posts, item)) {
+        //     return [
+        //       ...acc,
+        //       {
+        //         ...item,
+        //         feedId: feed.id,
+        //         id,
+        //         showed: false,
+        //       },
+        //     ];
+        //   }
+        //   return acc;
+        // }, []);
 
         if (_.size(items) > 0) {
           watchedState.posts.unshift(...items);
         }
       })
       .catch((error) => {
-        // eslint-disable-next-line no-param-reassign
-        watchedState.error = getErrorType(error);
-        // eslint-disable-next-line no-param-reassign
-        watchedState.form.status = 'failed';
+        console.error = error;
       });
     return result;
   });
@@ -82,132 +91,136 @@ function updateRss(watchedState) {
   });
 }
 
-function submitHandler(state, form) {
-  const watchedState = state;
+function submitHandler(watchedState, form) {
   const formData = new FormData(form);
   const url = formData.get('url');
-  const rssUrlList = watchedState.feeds.reduce((acc, feed) => [...acc, feed.url], []);
-  const error = isValidUrl(url, rssUrlList);
+  const rssUrlList = watchedState.feeds.map((feed) => feed.url);
+  const error = validateUrl(url, rssUrlList);
   if (error) {
     const errorMessage = `form.errors.${error.type}`;
+    // eslint-disable-next-line no-param-reassign
     watchedState.form.fields.url = {
       valid: false,
       error: errorMessage,
     };
     return;
   }
+  // eslint-disable-next-line no-param-reassign
   watchedState.form.fields.url = {
     valid: true,
     error: null,
   };
+  // eslint-disable-next-line no-param-reassign
   watchedState.form.status = 'getting';
 
   getRss(url)
-    .then((resp) => parse(resp))
     .then((resp) => {
+      const data = parse(resp);
       const id = _.uniqueId();
       const feed = {
-        title: resp.title,
-        description: resp.description,
-        link: resp.link,
+        title: data.title,
+        description: data.description,
+        link: data.link,
         url,
         id,
       };
-      const items = resp.items.map((item) => ({
+      const items = data.items.map((item) => ({
         ...item,
         feedId: id,
         id: _.uniqueId(),
       }));
-      watchedState.rssUrl.push(url);
       watchedState.feeds.unshift(feed);
       watchedState.posts.unshift(...items);
+      // eslint-disable-next-line no-param-reassign
       watchedState.form.status = 'success';
+      // eslint-disable-next-line no-param-reassign
       watchedState.form.status = 'filling';
     })
     .catch((e) => {
+      // eslint-disable-next-line no-param-reassign
       watchedState.error = getErrorType(e);
+      // eslint-disable-next-line no-param-reassign
       watchedState.form.status = 'failed';
     });
 }
 
-async function app() {
+function app() {
   const i18next = i18n.createInstance();
-  await i18next.init({
-    lng: 'ru',
-    resources: {
-      ru,
-    },
-    debug: true,
-  });
-
-  const elements = {
-    form: document.querySelector('.rss-form'),
-    submit: document.querySelector('#submit'),
-    url: document.querySelector('#form-url'),
-    feeds: document.querySelector('[data-feeds-wrap]'),
-    posts: document.querySelector('[data-posts-wrap]'),
-    feedback: document.querySelector('[data-feedback-message]'),
-    modal: {
-      container: document.querySelector('.modal'),
-      title: document.querySelector('[data-modal-label]'),
-      content: document.querySelector('.modal-body'),
-      link: document.querySelector('[data-modal-link]'),
-    },
-  };
-
-  const state = {
-    form: {
-      status: 'filling', // filling, getting, failed, success
-      fields: {
-        url: {
-          valid: true,
-          error: null,
-        },
+  i18next
+    .init({
+      lng: 'ru',
+      resources: {
+        ru,
       },
-    },
-    modal: {
-      show: false,
-      post: null,
-    },
-    rssUrl: [],
-    feeds: [],
-    posts: [],
-    viewedPostsId: [],
-    feedback: null,
-    error: null,
-    ui: {
-      lastShowingPost: null,
-    },
-  };
+      debug: true,
+    })
+    .then(() => {
+      const elements = {
+        form: document.querySelector('.rss-form'),
+        submit: document.querySelector('#submit'),
+        url: document.querySelector('#form-url'),
+        feeds: document.querySelector('.feeds'),
+        posts: document.querySelector('.posts'),
+        feedback: document.querySelector('[data-feedback-message]'),
+        modal: {
+          container: document.querySelector('.modal'),
+          title: document.querySelector('[data-modal-label]'),
+          content: document.querySelector('.modal-body'),
+          link: document.querySelector('[data-modal-link]'),
+        },
+      };
 
-  const watchedState = initView(state, elements, i18next);
+      const state = {
+        form: {
+          status: 'filling', // filling, getting, failed, success
+          fields: {
+            url: {
+              valid: true,
+              error: null,
+            },
+          },
+        },
+        modal: {
+          show: false,
+          post: null,
+        },
+        feeds: [],
+        posts: [],
+        viewedPostsId: [],
+        error: null,
+        ui: {
+          lastShowingPost: null,
+        },
+      };
 
-  elements.form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    submitHandler(watchedState, event.currentTarget);
-  });
+      const watchedState = initView(state, elements, i18next);
 
-  elements.posts.addEventListener('click', (event) => {
-    if (!_.has(event.target.dataset, 'postId')) {
-      return;
-    }
-    const { postId } = event.target.dataset;
-    if (watchedState.viewedPostsId.includes(postId) || postId === undefined) {
-      return;
-    }
+      elements.form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        submitHandler(watchedState, event.currentTarget);
+      });
 
-    const post = _.find(watchedState.posts, { id: postId });
-    watchedState.ui.lastShowingPost = event.target.previousElementSibling;
-    post.showed = true;
-    watchedState.modal = {
-      post,
-    };
-  });
+      elements.posts.addEventListener('click', (event) => {
+        if (!_.has(event.target.dataset, 'postId')) {
+          return;
+        }
+        const { postId } = event.target.dataset;
+        if (watchedState.viewedPostsId.includes(postId) || postId === undefined) {
+          return;
+        }
 
-  setTimeout(() => {
-    updateRss(watchedState);
-  }, timeRepeatUpdateMs);
-  return true;
+        const post = _.find(watchedState.posts, { id: postId });
+        watchedState.ui.lastShowingPost = event.target.previousElementSibling;
+        post.showed = true;
+        watchedState.modal = {
+          post,
+        };
+      });
+
+      setTimeout(() => {
+        updateRss(watchedState);
+      }, timeRepeatUpdateMs);
+    });
 }
 
 export default app;
