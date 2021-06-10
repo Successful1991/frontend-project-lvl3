@@ -56,11 +56,7 @@ function updateRss(watchedState) {
           };
         }, []);
         const oldItems = watchedState.posts.filter((post) => post.feedId === feed.id);
-        console.log('updatedItems', updatedItems);
-        console.log('oldItems', oldItems);
         const newItems = _.differenceBy(updatedItems, oldItems, 'title');
-        console.log('newItems', newItems);
-        console.log('_.size(newItems)', _.size(newItems));
         if (_.size(newItems) > 0) {
           watchedState.posts.unshift(...newItems);
         }

@@ -77,14 +77,13 @@ const renderForm = (status, elements, i18next) => {
 };
 
 const changeFontWidth = (value, postsWrap) => {
-  const values = value.values();
-  // eslint-disable-next-line no-restricted-syntax
-  for (const val of values) {
+  const values = Array.from(value.values());
+  values.forEach((val) => {
     const post = postsWrap.querySelector(`[data-post-id="${val}"]`);
     const linkEl = post.querySelector('a');
     linkEl.classList.remove('fw-bold');
     linkEl.classList.add('fw-normal');
-  }
+  });
 };
 
 const renderModal = (modal, elements) => {
