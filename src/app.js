@@ -46,7 +46,7 @@ function updateRss(watchedState) {
     const result = getRss(feed.url)
       .then((resp) => {
         const data = parse(resp);
-        const items = data.items.map((item) => {
+        const updatedItems = data.items.map((item) => {
           const id = _.uniqueId();
           return {
             ...item,
@@ -56,26 +56,13 @@ function updateRss(watchedState) {
           };
         }, []);
         const oldItems = watchedState.posts.filter((post) => post.feedId === feed.id);
-        const y = _.differenceWith(oldItems, items, (a, b) => _.isMatchWith(a, b, (a1, b1) => a1 === b1));
-        console.log(y);
-        // const items = data.items.reduce((acc, item) => {
-        //   const id = _.uniqueId();
-        //   if (_.includes(watchedState.posts, item)) {
-        //     return [
-        //       ...acc,
-        //       {
-        //         ...item,
-        //         feedId: feed.id,
-        //         id,
-        //         showed: false,
-        //       },
-        //     ];
-        //   }
-        //   return acc;
-        // }, []);
-
-        if (_.size(items) > 0) {
-          watchedState.posts.unshift(...items);
+        console.log('updatedItems', updatedItems);
+        console.log('oldItems', oldItems);
+        const newItems = _.differenceBy(updatedItems, oldItems, 'title');
+        console.log('newItems', newItems);
+        console.log('_.size(newItems)', _.size(newItems));
+        if (_.size(newItems) > 0) {
+          watchedState.posts.unshift(...newItems);
         }
       })
       .catch((error) => {
@@ -186,10 +173,9 @@ function app() {
         },
         feeds: [],
         posts: [],
-        viewedPostsId: [],
         error: null,
         ui: {
-          lastShowingPost: null,
+          seenPosts: new Set(),
         },
       };
 
@@ -205,13 +191,12 @@ function app() {
           return;
         }
         const { postId } = event.target.dataset;
-        if (watchedState.viewedPostsId.includes(postId) || postId === undefined) {
+        if (watchedState.ui.seenPosts.has(postId) || postId === undefined) {
           return;
         }
 
         const post = _.find(watchedState.posts, { id: postId });
-        watchedState.ui.lastShowingPost = event.target.previousElementSibling;
-        post.showed = true;
+        watchedState.ui.seenPosts.add(postId);
         watchedState.modal = {
           post,
         };

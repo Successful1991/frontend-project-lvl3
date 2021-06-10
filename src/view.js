@@ -28,12 +28,13 @@ const renderFeeds = (data, elements) => {
   `;
 };
 
-const renderPosts = (feeds, elements, i18next) => {
+const renderPosts = (feeds, elements, i18next, seenPosts) => {
   const postsEl = elements.posts;
   postsEl.innerHTML = '';
   const posts = feeds.map((item) => {
-    const result = `<li class="list-group-item d-flex justify-content-between align-items-start" data-post-element>
-    <a href="${item.link}" class="${item.showed ? 'fw-normal' : 'fw-bold'}">${item.title}</a>
+    const linkClass = seenPosts.has(item.id) ? 'fw-regular' : 'fw-bold';
+    const result = `<li class="list-group-item d-flex justify-content-between align-items-start" data-post-element data-post-id="${item.id}">
+    <a href="${item.link}" class="${linkClass}">${item.title}</a>
     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal" data-post-id="${item.id}">
       ${i18next.t('form.button')}
     </button></li>`;
@@ -75,9 +76,15 @@ const renderForm = (status, elements, i18next) => {
   }
 };
 
-const changeFontWidth = (element) => {
-  element.classList.remove('fw-bold');
-  element.classList.add('fw-normal');
+const changeFontWidth = (value, postsWrap) => {
+  const values = value.values();
+  // eslint-disable-next-line no-restricted-syntax
+  for (const val of values) {
+    const post = postsWrap.querySelector(`[data-post-id="${val}"]`);
+    const linkEl = post.querySelector('a');
+    linkEl.classList.remove('fw-bold');
+    linkEl.classList.add('fw-normal');
+  }
 };
 
 const renderModal = (modal, elements) => {
@@ -128,13 +135,13 @@ function initView(state, elements, i18next) {
         renderFeeds(value, elements);
         break;
       case 'posts':
-        renderPosts(value, elements, i18next);
+        renderPosts(value, elements, i18next, state.ui.seenPosts);
         break;
       case 'modal':
         renderModal(value, elements);
         break;
-      case 'ui.lastShowingPost':
-        changeFontWidth(value);
+      case 'ui.seenPosts':
+        changeFontWidth(value, elements.posts);
         break;
       default:
         break;
