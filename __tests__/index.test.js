@@ -1,13 +1,12 @@
-import nock from 'nock';
-import { screen, fireEvent, within, logRoles } from '@testing-library/dom';
-import userEvent from '@testing-library/user-event';
+// import nock from 'nock';
+import { screen, fireEvent } from '@testing-library/dom';
 import '@testing-library/jest-dom/extend-expect';
-import app from '../src/app';
 import path from 'path';
 import { readFileSync } from 'fs';
+import app from '../src/app';
 // import parser from '../src/parser';
 
-const url = 'https://ru.hexlet.io/lessons.rss';
+const correctUrl = 'https://ru.hexlet.io/lessons.rss';
 const urlUpdated = 'http://lorem-rss.herokuapp.com/feed?unit=second&interval=30';
 const wrongUrl = 'hts://ru.hexlet.io/lessons.rss';
 const invalidRssUrl = 'https://google.com';
@@ -23,11 +22,11 @@ function sendUrl(url) {
   const input = screen.getByLabelText('url');
   input.value = url;
   fireEvent.click(submit);
-  return {input, submit};
+  return { input, submit };
 }
 
 describe('form', () => {
-  test('empty url' , async () => {
+  test('empty url', async () => {
     expect(screen.queryByText(/Не должно быть пустым/i)).toBeNull();
     sendUrl(' ');
     // const submit = screen.getByRole('button', { name: /add/i });
@@ -37,18 +36,18 @@ describe('form', () => {
     expect(await screen.findByText(/Не должно быть пустым/i)).toBeInTheDocument();
   });
 
-  test('valid rss' , async () => {
+  test('valid rss', async () => {
     expect(screen.queryByText(/RSS успешно загружен/i)).toBeNull();
-    const {submit, input} = sendUrl(url);
+    const { submit, input } = sendUrl(correctUrl);
 
     expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
     expect(input.value).toBe('');
 
     expect(screen.queryByText(/RSS уже существует/i)).toBeNull();
-    input.value = url;
+    input.value = correctUrl;
     fireEvent.click(submit);
     expect(await screen.findByText(/RSS уже существует/i)).toBeInTheDocument();
-    expect(input.value).toBe(url);
+    expect(input.value).toBe(correctUrl);
   });
 
   test('wrong url', () => {
@@ -64,7 +63,7 @@ describe('form', () => {
   test('add feeds', async () => {
     expect(await screen.queryByText(/Feeds/i)).not.toBeInTheDocument();
     expect(screen.getByTestId('feeds')).toBeEmptyDOMElement();
-    sendUrl(url);
+    sendUrl(correctUrl);
     expect(await screen.findByText(/Feeds/i)).toBeInTheDocument();
     expect(screen.getByText(/Feeds/i)).toBeInTheDocument();
     expect(screen.getByTestId('feeds')).not.toBeEmptyDOMElement();
@@ -74,7 +73,7 @@ describe('form', () => {
   test('add posts', async () => {
     expect(await screen.queryByText(/posts/i)).not.toBeInTheDocument();
     expect(screen.getByTestId('posts')).toBeEmptyDOMElement();
-    sendUrl(url);
+    sendUrl(correctUrl);
     expect(await screen.findByText(/posts/i)).toBeInTheDocument();
     expect(screen.getByText(/posts/i)).toBeInTheDocument();
     expect(screen.getByTestId('posts')).not.toBeEmptyDOMElement();
@@ -83,7 +82,7 @@ describe('form', () => {
   test('add new feeds', async () => {
     expect(await screen.queryByText(/posts/i)).not.toBeInTheDocument();
     expect(screen.getByTestId('posts')).toBeEmptyDOMElement();
-    sendUrl(url);
+    sendUrl(correctUrl);
     expect(await screen.findByText(/posts/i)).toBeInTheDocument();
     expect(screen.getByText(/posts/i)).toBeInTheDocument();
     expect(screen.getByTestId('posts')).not.toBeEmptyDOMElement();
