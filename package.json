@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.9.2",
+    "@testing-library/dom": "^7.31.2",
     "axios": "^0.21.1",
     "bootstrap": "^5.0.1",
     "i18next": "^20.3.1",
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@babel/core": "^7.14.3",
     "@babel/preset-env": "^7.14.2",
+    "@testing-library/jest-dom": "^5.14.1",
     "autoprefixer": "^10.2.5",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
@@ -52,11 +54,20 @@
     "husky": "^6.0.0",
     "jest": "^26.6.3",
     "jest-cli": "^26.6.3",
+    "lint-staged": "^11.0.0",
     "nock": "^13.1.0",
     "prettier": "2.3.0",
     "style-loader": "^2.0.0",
     "webpack": "^5.37.1",
     "webpack-cli": "^4.7.0",
     "webpack-dev-server": "^3.11.2"
-  }
+  },
+	"husky": {
+		"hooks": {
+			"pre-commit": "lint-staged"
+		}
+	},
+	"lint-staged": {
+		"*.(js|jsx)": ["make lint", "git add", "make test"]
+	}
 }
