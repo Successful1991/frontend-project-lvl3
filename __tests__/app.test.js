@@ -1,6 +1,6 @@
 // import nock from 'nock';
+import '@testing-library/jest-dom';
 import { screen, fireEvent } from '@testing-library/dom';
-import '@testing-library/jest-dom/extend-expect';
 import path from 'path';
 import { readFileSync } from 'fs';
 import app from '../src/app';
