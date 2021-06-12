@@ -68,8 +68,7 @@
   "lint-staged": {
     "*.(js|jsx)": [
       "make lint",
-      "git add",
-      "make test"
+      "git add"
     ]
   }
 }
