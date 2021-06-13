@@ -1,6 +1,6 @@
 import * as yup from 'yup';
 import axios from 'axios';
-import { uniqueId, size, differenceBy, find, has } from 'lodash';
+import _ from 'lodash';
 
 import i18n from 'i18next';
 import ru from './language/index';
@@ -47,7 +47,7 @@ function updateRss(watchedState) {
       .then((resp) => {
         const data = parse(resp);
         const updatedItems = data.items.map((item) => {
-          const id = uniqueId();
+          const id = _.uniqueId();
           return {
             ...item,
             feedId: feed.id,
@@ -55,8 +55,8 @@ function updateRss(watchedState) {
           };
         }, []);
         const oldItems = watchedState.posts.filter((post) => post.feedId === feed.id);
-        const newItems = differenceBy(updatedItems, oldItems, 'title');
-        if (size(newItems) > 0) {
+        const newItems = _.differenceBy(updatedItems, oldItems, 'title');
+        if (_.size(newItems) > 0) {
           watchedState.posts.unshift(...newItems);
         }
       })
@@ -98,7 +98,7 @@ function submitHandler(watchedState, form) {
   getRss(url)
     .then((resp) => {
       const data = parse(resp);
-      const id = uniqueId();
+      const id = _.uniqueId();
       const feed = {
         title: data.title,
         description: data.description,
@@ -109,7 +109,7 @@ function submitHandler(watchedState, form) {
       const items = data.items.map((item) => ({
         ...item,
         feedId: id,
-        id: uniqueId(),
+        id: _.uniqueId(),
       }));
       watchedState.feeds.unshift(feed);
       watchedState.posts.unshift(...items);
@@ -180,13 +180,13 @@ function app() {
       });
 
       elements.postsContainer.addEventListener('click', (event) => {
-        if (!has(event.target.dataset, 'postId')) {
+        if (!_.has(event.target.dataset, 'postId')) {
           return;
         }
         const { postId } = event.target.dataset;
         if (!postId) return;
 
-        const post = find(watchedState.posts, { id: postId });
+        const post = _.find(watchedState.posts, { id: postId });
         watchedState.ui.seenPosts.add(postId);
         watchedState.modal = {
           post,
