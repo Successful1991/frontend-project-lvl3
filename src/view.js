@@ -14,14 +14,14 @@ const renderSuccess = (elements, message, i18next) => {
   feedbackEl.innerHTML = i18next.t(message);
 };
 
-const renderFeeds = (data, elements) => {
-  const feedsEl = elements.feeds;
+const renderFeeds = (data, elements, i18next) => {
+  const feedsEl = elements.feedsContainer;
   feedsEl.innerHTML = '';
 
-  const feedsList = data.map((feed) => `<li class="list-group-item "><h3>${feed.title}</h3><p>${feed.description}</p></li>`);
-  const feeds = feedsList.join('');
+  const feedsHtml = data.map((feed) => `<li class="list-group-item "><h3>${feed.title}</h3><p>${feed.description}</p></li>`);
+  const feeds = feedsHtml.join('');
   feedsEl.innerHTML = `
-  <h2 class="feeds__title">Feeds</h2>
+  <h2 class="feeds__title">${i18next.t('feedsTitle')}</h2>
   <ul class="feeds__list list-group">
     ${feeds}
   </ul>
@@ -29,7 +29,7 @@ const renderFeeds = (data, elements) => {
 };
 
 const renderPosts = (feeds, elements, i18next, seenPosts) => {
-  const postsEl = elements.posts;
+  const postsEl = elements.postsContainer;
   postsEl.innerHTML = '';
   const posts = feeds.map((item) => {
     const linkClass = seenPosts.has(item.id) ? 'fw-regular' : 'fw-bold';
@@ -42,7 +42,7 @@ const renderPosts = (feeds, elements, i18next, seenPosts) => {
   });
   const postsHtml = posts.join('');
   postsEl.innerHTML = `
-  <h2 class="posts__title">Posts</h2>
+  <h2 class="posts__title">${i18next.t('postsTitle')}</h2>
   <ul class="posts__list list-group">
   ${postsHtml}
 </ul>
@@ -52,34 +52,33 @@ const renderPosts = (feeds, elements, i18next, seenPosts) => {
 const renderForm = (status, elements, i18next) => {
   switch (status) {
     case 'filling':
-      elements.form.reset();
-      elements.url.removeAttribute('disabled');
-      elements.url.removeAttribute('readonly');
+      elements.formContainer.reset();
+      elements.input.removeAttribute('disabled');
+      elements.input.removeAttribute('readonly');
       elements.submit.removeAttribute('disabled');
-      renderSuccess(elements, 'messages.success', i18next);
       break;
     case 'success':
       renderSuccess(elements, 'messages.success', i18next);
       break;
     case 'getting':
-      elements.url.setAttribute('disabled', 'disabled');
-      elements.url.setAttribute('readonly', true);
+      elements.input.setAttribute('disabled', 'disabled');
+      elements.input.setAttribute('readonly', true);
       elements.submit.setAttribute('disabled', 'disabled');
       break;
     case 'failed':
-      elements.url.removeAttribute('disabled');
+      elements.input.removeAttribute('disabled');
       elements.submit.removeAttribute('disabled');
-      elements.url.removeAttribute('readonly');
+      elements.input.removeAttribute('readonly');
       break;
     default:
       throw new Error(`Unknown form status: ${status}`);
   }
 };
 
-const changeFontWidth = (value, postsWrap) => {
-  const values = Array.from(value.values());
-  values.forEach((val) => {
-    const post = postsWrap.querySelector(`[data-post-id="${val}"]`);
+const setSeenPosts = (seenPostsMap, postsContainer) => {
+  const seenPosts = Array.from(seenPostsMap.values());
+  seenPosts.forEach((postId) => {
+    const post = postsContainer.querySelector(`[data-post-id="${postId}"]`);
     const linkEl = post.querySelector('a');
     linkEl.classList.remove('fw-bold');
     linkEl.classList.add('fw-normal');
@@ -94,26 +93,25 @@ const renderModal = (modal, elements) => {
   modalEl.link.setAttribute('href', link);
 };
 
-const clearInput = (field) => {
-  const urlEl = field;
-  urlEl.classList.remove('is-valid');
-  urlEl.classList.remove('is-invalid');
+const resetInputClasses = (input) => {
+  input.classList.remove('is-valid');
+  input.classList.remove('is-invalid');
 };
 
-const setValidInput = (element) => {
-  element.classList.add('is-valid');
+const renderValidInput = (input) => {
+  input.classList.add('is-valid');
 };
 
-const setInvalidInput = (element) => {
+const renderInvalidInput = (element) => {
   element.classList.add('is-invalid');
 };
 
-const renderFormError = (field, elements) => {
-  clearInput(elements.url);
+const renderInputError = (field, elements) => {
+  resetInputClasses(elements.input);
   if (field.valid) {
-    setValidInput(elements.url);
+    renderValidInput(elements.input);
   } else {
-    setInvalidInput(elements.url);
+    renderInvalidInput(elements.input);
   }
 };
 
@@ -121,7 +119,7 @@ function initView(state, elements, i18next) {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'form.fields.url':
-        renderFormError(value, elements);
+        renderInputError(value, elements);
         renderError(elements, value.error, i18next);
         break;
       case 'form.status':
@@ -131,7 +129,7 @@ function initView(state, elements, i18next) {
         renderError(elements, value, i18next);
         break;
       case 'feeds':
-        renderFeeds(value, elements);
+        renderFeeds(value, elements, i18next);
         break;
       case 'posts':
         renderPosts(value, elements, i18next, state.ui.seenPosts);
@@ -140,7 +138,7 @@ function initView(state, elements, i18next) {
         renderModal(value, elements);
         break;
       case 'ui.seenPosts':
-        changeFontWidth(value, elements.posts);
+        setSeenPosts(value, elements.postsContainer);
         break;
       default:
         break;

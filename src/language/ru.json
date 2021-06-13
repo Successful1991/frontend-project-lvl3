@@ -8,6 +8,8 @@
 		"messages": {
 			"success": "RSS успешно загружен"
 		},
+		"feedsTitle": "Фиды",
+		"postsTitle": "Посты",
 		"form": {
 			"button": "Просмотр",
 			"errors": {

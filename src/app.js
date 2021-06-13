@@ -1,18 +1,18 @@
 import * as yup from 'yup';
 import axios from 'axios';
-import _ from 'lodash';
+import { uniqueId, size, differenceBy, find, has } from 'lodash';
 
 import i18n from 'i18next';
-import ru from './language/ru';
+import ru from './language/index';
 import initView from './view';
 import parse from './parser';
 
 const timeRepeatUpdateMs = 5000;
 const schemaRss = yup.string().required().trim().url();
 
-const validateUrl = (url, rssUrlColl = []) => {
+const validateUrl = (url, rssUrls = []) => {
   try {
-    schemaRss.notOneOf(rssUrlColl).validateSync(url);
+    schemaRss.notOneOf(rssUrls).validateSync(url);
     return null;
   } catch (e) {
     return e;
@@ -36,36 +36,34 @@ function getErrorType(e) {
   return 'errors.default';
 }
 
-const getRss = async (url) => {
+const getRss = (url) => {
   const urlWithProxy = addProxy(url);
   return axios.get(urlWithProxy).then((resp) => resp.data.contents);
 };
 
 function updateRss(watchedState) {
-  const promises = watchedState.feeds.map((feed) => {
-    const result = getRss(feed.url)
+  const promises = watchedState.feeds.map((feed) =>
+    getRss(feed.url)
       .then((resp) => {
         const data = parse(resp);
         const updatedItems = data.items.map((item) => {
-          const id = _.uniqueId();
+          const id = uniqueId();
           return {
             ...item,
             feedId: feed.id,
             id,
-            showed: false,
           };
         }, []);
         const oldItems = watchedState.posts.filter((post) => post.feedId === feed.id);
-        const newItems = _.differenceBy(updatedItems, oldItems, 'title');
-        if (_.size(newItems) > 0) {
+        const newItems = differenceBy(updatedItems, oldItems, 'title');
+        if (size(newItems) > 0) {
           watchedState.posts.unshift(...newItems);
         }
       })
       .catch((error) => {
         console.error = error;
-      });
-    return result;
-  });
+      })
+  );
 
   Promise.all(promises).finally(() => {
     setTimeout(() => {
@@ -77,14 +75,14 @@ function updateRss(watchedState) {
 function submitHandler(watchedState, form) {
   const formData = new FormData(form);
   const url = formData.get('url');
-  const rssUrlList = watchedState.feeds.map((feed) => feed.url);
-  const error = validateUrl(url, rssUrlList);
+  const rssUrls = watchedState.feeds.map((feed) => feed.url);
+  const error = validateUrl(url, rssUrls);
   if (error) {
-    const errorMessage = `form.errors.${error.type}`;
+    const errorMessageKey = `form.errors.${error.type}`;
     // eslint-disable-next-line no-param-reassign
     watchedState.form.fields.url = {
       valid: false,
-      error: errorMessage,
+      error: errorMessageKey,
     };
     return;
   }
@@ -99,7 +97,7 @@ function submitHandler(watchedState, form) {
   getRss(url)
     .then((resp) => {
       const data = parse(resp);
-      const id = _.uniqueId();
+      const id = uniqueId();
       const feed = {
         title: data.title,
         description: data.description,
@@ -110,7 +108,7 @@ function submitHandler(watchedState, form) {
       const items = data.items.map((item) => ({
         ...item,
         feedId: id,
-        id: _.uniqueId(),
+        id: uniqueId(),
       }));
       watchedState.feeds.unshift(feed);
       watchedState.posts.unshift(...items);
@@ -139,11 +137,11 @@ function app() {
     })
     .then(() => {
       const elements = {
-        form: document.querySelector('.rss-form'),
+        formContainer: document.querySelector('.rss-form'),
         submit: document.querySelector('#submit'),
-        url: document.querySelector('#form-url'),
-        feeds: document.querySelector('.feeds'),
-        posts: document.querySelector('.posts'),
+        input: document.querySelector('#form-url'),
+        feedsContainer: document.querySelector('.feeds'),
+        postsContainer: document.querySelector('.posts'),
         feedback: document.querySelector('[data-feedback-message]'),
         modal: {
           container: document.querySelector('.modal'),
@@ -152,7 +150,6 @@ function app() {
           link: document.querySelector('[data-modal-link]'),
         },
       };
-
       const state = {
         form: {
           status: 'filling', // filling, getting, failed, success
@@ -164,7 +161,6 @@ function app() {
           },
         },
         modal: {
-          show: false,
           post: null,
         },
         feeds: [],
@@ -177,21 +173,19 @@ function app() {
 
       const watchedState = initView(state, elements, i18next);
 
-      elements.form.addEventListener('submit', (event) => {
+      elements.formContainer.addEventListener('submit', (event) => {
         event.preventDefault();
         submitHandler(watchedState, event.currentTarget);
       });
 
-      elements.posts.addEventListener('click', (event) => {
-        if (!_.has(event.target.dataset, 'postId')) {
+      elements.postsContainer.addEventListener('click', (event) => {
+        if (!has(event.target.dataset, 'postId')) {
           return;
         }
         const { postId } = event.target.dataset;
-        if (watchedState.ui.seenPosts.has(postId) || postId === undefined) {
-          return;
-        }
+        if (!postId) return;
 
-        const post = _.find(watchedState.posts, { id: postId });
+        const post = find(watchedState.posts, { id: postId });
         watchedState.ui.seenPosts.add(postId);
         watchedState.modal = {
           post,
@@ -202,6 +196,7 @@ function app() {
         updateRss(watchedState);
       }, timeRepeatUpdateMs);
     });
+  return i18next;
 }
 
 export default app;

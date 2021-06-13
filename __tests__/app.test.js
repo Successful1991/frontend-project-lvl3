@@ -1,6 +1,6 @@
 // import nock from 'nock';
 import '@testing-library/jest-dom';
-import { screen, fireEvent } from '@testing-library/dom';
+import { screen, fireEvent, within } from '@testing-library/dom';
 import path from 'path';
 import { readFileSync } from 'fs';
 import app from '../src/app';
@@ -10,9 +10,10 @@ const urlUpdated = 'http://lorem-rss.herokuapp.com/feed?unit=second&interval=30'
 const wrongUrl = 'hts://ru.hexlet.io/lessons.rss';
 const invalidRssUrl = 'https://google.com';
 const initHtml = readFileSync(path.resolve('index.html'), 'utf8').toString().trim();
+let i18next = null;
 
 beforeEach(() => {
-  app();
+  i18next = app();
   document.body.innerHTML = initHtml;
 });
 
@@ -56,37 +57,27 @@ describe('form', () => {
   });
 
   test('add feeds', async () => {
-    expect(screen.queryByText(/Feeds/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(i18next.t('feedsTitle'))).not.toBeInTheDocument();
     expect(screen.getByTestId('feeds')).toBeEmptyDOMElement();
     sendUrl(correctUrl);
-    expect(await screen.findByText(/Feeds/i)).toBeInTheDocument();
-    expect(screen.getByText(/Feeds/i)).toBeInTheDocument();
+    expect(await screen.findByText(i18next.t('feedsTitle'))).toBeInTheDocument();
     expect(screen.getByTestId('feeds')).not.toBeEmptyDOMElement();
     expect(screen.getByText(/RSS успешно загружен/i)).toBeInTheDocument();
-  });
 
-  test('add posts', async () => {
-    expect(screen.queryByText(/posts/i)).not.toBeInTheDocument();
-    expect(screen.getByTestId('posts')).toBeEmptyDOMElement();
-    sendUrl(correctUrl);
-    expect(await screen.findByText(/posts/i)).toBeInTheDocument();
-    expect(screen.getByText(/posts/i)).toBeInTheDocument();
+    expect(screen.getByText(i18next.t('postsTitle'))).toBeInTheDocument();
     expect(screen.getByTestId('posts')).not.toBeEmptyDOMElement();
-  });
 
-  test('add new feeds', async () => {
-    expect(screen.queryByText(/posts/i)).not.toBeInTheDocument();
-    expect(screen.getByTestId('posts')).toBeEmptyDOMElement();
-    sendUrl(correctUrl);
-    expect(await screen.findByText(/posts/i)).toBeInTheDocument();
-    expect(screen.getByText(/posts/i)).toBeInTheDocument();
-    expect(screen.getByTestId('posts')).not.toBeEmptyDOMElement();
+    const postContainer = screen.getByTestId('posts');
+    const postsLength = within(postContainer).getAllByRole('listitem').length;
 
     sendUrl(urlUpdated);
+    expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
+    expect(within(screen.getByTestId('feeds')).getAllByRole('listitem')).toHaveLength(2);
+    expect(within(postContainer).getAllByRole('listitem')).not.toHaveLength(postsLength);
   });
 
   test.todo('network');
-  test.todo('add new posts');
+
   // nock.disableNetConnect();
   // test('network' , () => {
   //   const submit = screen.getByRole('button', { name: /add/i });
