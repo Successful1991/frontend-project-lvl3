@@ -10,11 +10,14 @@ const urlUpdated = 'http://lorem-rss.herokuapp.com/feed?unit=second&interval=30'
 const wrongUrl = 'hts://ru.hexlet.io/lessons.rss';
 const invalidRssUrl = 'https://google.com';
 const initHtml = readFileSync(path.resolve('index.html'), 'utf8').toString().trim();
-let i18next = null;
+const i18next = {
+  example: null,
+};
 
 beforeEach(() => {
-  i18next = app();
+  i18next.example = app();
   document.body.innerHTML = initHtml;
+
 });
 
 function sendUrl(url) {
@@ -57,14 +60,14 @@ describe('form', () => {
   });
 
   test('add feeds', async () => {
-    expect(screen.queryByText(i18next.t('feedsTitle'))).not.toBeInTheDocument();
+    expect(screen.queryByText(i18next.example.t('feedsTitle'))).not.toBeInTheDocument();
     expect(screen.getByTestId('feeds')).toBeEmptyDOMElement();
     sendUrl(correctUrl);
-    expect(await screen.findByText(i18next.t('feedsTitle'))).toBeInTheDocument();
+    expect(await screen.findByText(i18next.example.t('feedsTitle'))).toBeInTheDocument();
     expect(screen.getByTestId('feeds')).not.toBeEmptyDOMElement();
     expect(screen.getByText(/RSS успешно загружен/i)).toBeInTheDocument();
 
-    expect(screen.getByText(i18next.t('postsTitle'))).toBeInTheDocument();
+    expect(screen.getByText(i18next.example.t('postsTitle'))).toBeInTheDocument();
     expect(screen.getByTestId('posts')).not.toBeEmptyDOMElement();
 
     const postContainer = screen.getByTestId('posts');
