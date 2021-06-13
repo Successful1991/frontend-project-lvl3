@@ -42,8 +42,8 @@ const getRss = (url) => {
 };
 
 function updateRss(watchedState) {
-  const promises = watchedState.feeds.map((feed) => {
-    return getRss(feed.url)
+  const promises = watchedState.feeds.map((feed) =>
+    getRss(feed.url)
       .then((resp) => {
         const data = parse(resp);
         const updatedItems = data.items.map((item) => {
@@ -62,8 +62,8 @@ function updateRss(watchedState) {
       })
       .catch((error) => {
         console.error = error;
-      });
-  });
+      })
+  );
 
   Promise.all(promises).finally(() => {
     setTimeout(() => {

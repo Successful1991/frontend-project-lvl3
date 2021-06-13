@@ -17,7 +17,6 @@ const i18next = {
 beforeEach(() => {
   i18next.example = app();
   document.body.innerHTML = initHtml;
-
 });
 
 function sendUrl(url) {
