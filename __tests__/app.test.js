@@ -10,9 +10,9 @@ const urlUpdated = 'http://lorem-rss.herokuapp.com/feed?unit=second&interval=30'
 const wrongUrl = 'hts://ru.hexlet.io/lessons.rss';
 const initHtml = readFileSync(path.resolve('index.html'), 'utf8').toString().trim();
 
-const validRss1 = readFileSync(path.resolve( '__tests__', 'fixtures', 'rss.xml'), 'utf8');
-const validRss2 = readFileSync(path.resolve( '__tests__', 'fixtures', 'rss2.xml'), 'utf8');
-const noValidRss = readFileSync(path.resolve( '__tests__', 'fixtures', 'rssNoValid.xml'), 'utf8');
+const validRss1 = readFileSync(path.resolve('__tests__', 'fixtures', 'rss.xml'), 'utf8');
+const validRss2 = readFileSync(path.resolve('__tests__', 'fixtures', 'rss2.xml'), 'utf8');
+const noValidRss = readFileSync(path.resolve('__tests__', 'fixtures', 'rssNoValid.xml'),'utf8');
 
 const i18next = {
   example: null,
