@@ -1,9 +1,11 @@
 import * as yup from 'yup';
 import axios from 'axios';
-import _ from 'lodash';
+import {
+  uniqueId, has, differenceBy, find, size,
+} from 'lodash';
 
 import i18n from 'i18next';
-import ru from './language/index';
+import language from './language/index';
 import initView from './view';
 import parse from './parser';
 
@@ -42,29 +44,26 @@ const getRss = (url) => {
 };
 
 function updateRss(watchedState) {
-  const promises = watchedState.feeds.map((feed) => {
-    const result = getRss(feed.url)
-      .then((resp) => {
-        const data = parse(resp);
-        const updatedItems = data.items.map((item) => {
-          const id = _.uniqueId();
-          return {
-            ...item,
-            feedId: feed.id,
-            id,
-          };
-        }, []);
-        const oldItems = watchedState.posts.filter((post) => post.feedId === feed.id);
-        const newItems = _.differenceBy(updatedItems, oldItems, 'title');
-        if (_.size(newItems) > 0) {
-          watchedState.posts.unshift(...newItems);
-        }
-      })
-      .catch((error) => {
-        console.error = error;
-      });
-    return result;
-  });
+  const promises = watchedState.feeds.map((feed) => getRss(feed.url)
+    .then((resp) => {
+      const data = parse(resp);
+      const updatedItems = data.items.map((item) => {
+        const id = uniqueId();
+        return {
+          ...item,
+          feedId: feed.id,
+          id,
+        };
+      }, []);
+      const oldItems = watchedState.posts.filter((post) => post.feedId === feed.id);
+      const newItems = differenceBy(updatedItems, oldItems, 'title');
+      if (size(newItems) > 0) {
+        watchedState.posts.unshift(...newItems);
+      }
+    })
+    .catch((error) => {
+      console.error = error;
+    }));
 
   Promise.all(promises).finally(() => {
     setTimeout(() => {
@@ -98,7 +97,7 @@ function submitHandler(watchedState, form) {
   getRss(url)
     .then((resp) => {
       const data = parse(resp);
-      const id = _.uniqueId();
+      const id = uniqueId();
       const feed = {
         title: data.title,
         description: data.description,
@@ -109,7 +108,7 @@ function submitHandler(watchedState, form) {
       const items = data.items.map((item) => ({
         ...item,
         feedId: id,
-        id: _.uniqueId(),
+        id: uniqueId(),
       }));
       watchedState.feeds.unshift(feed);
       watchedState.posts.unshift(...items);
@@ -131,9 +130,7 @@ function app() {
   i18next
     .init({
       lng: 'ru',
-      resources: {
-        ru,
-      },
+      resources: language,
       debug: true,
     })
     .then(() => {
@@ -180,13 +177,12 @@ function app() {
       });
 
       elements.postsContainer.addEventListener('click', (event) => {
-        if (!_.has(event.target.dataset, 'postId')) {
+        if (!has(event.target.dataset, 'postId')) {
           return;
         }
-        const { postId } = event.target.dataset;
-        if (!postId) return;
 
-        const post = _.find(watchedState.posts, { id: postId });
+        const { postId } = event.target.dataset;
+        const post = find(watchedState.posts, { id: postId });
         watchedState.ui.seenPosts.add(postId);
         watchedState.modal = {
           post,

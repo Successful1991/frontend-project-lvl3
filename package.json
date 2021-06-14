@@ -46,11 +46,9 @@
     "debug": "^4.3.1",
     "eslint": "^7.27.0",
     "eslint-config-airbnb": "^18.2.1",
-    "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-babel": "^5.3.1",
     "eslint-plugin-import": "^2.23.3",
     "eslint-plugin-jest": "^24.3.6",
-    "eslint-plugin-prettier": "^3.4.0",
     "global-jsdom": "^8.1.0",
     "html-webpack-plugin": "^5.3.1",
     "husky": "^6.0.0",
@@ -59,7 +57,6 @@
     "jsdom": "^16.6.0",
     "lint-staged": "^11.0.0",
     "nock": "^13.1.0",
-    "prettier": "2.3.0",
     "style-loader": "^2.0.0",
     "webpack": "^5.37.1",
     "webpack-cli": "^4.7.0",
@@ -68,7 +65,6 @@
   "lint-staged": {
     "*.(js|jsx)": [
       "make lint",
-      "git add",
       "make test"
     ]
   }

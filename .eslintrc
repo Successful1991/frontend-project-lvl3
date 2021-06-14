@@ -4,20 +4,13 @@
 		"es2021": true,
 		"browser": true
 	},
-	"plugins": ["jest", "babel", "prettier"],
+	"plugins": ["jest", "babel"],
 	"extends": [
 		"airbnb-base",
-		"plugin:jest/recommended",
-		"plugin:prettier/recommended",
-		"prettier"
+		"plugin:jest/recommended"
 	],
 	"parser": "babel-eslint",
 	"rules": {
-		"prettier/prettier": ["error", {}, {
-			"usePrettierrc": true
-		}],
-		"arrow-body-style": "off",
-		"prefer-arrow-callback": "off",
 		"quotes": ["error", "single"],
 		"no-console": 0,
 		"import/extensions": 0,
