@@ -1,25 +1,20 @@
 import nock from 'nock';
 import '@testing-library/jest-dom';
 import { screen, fireEvent, within } from '@testing-library/dom';
+import userEvent from '@testing-library/user-event/dist';
 import path from 'path';
 import { readFileSync } from 'fs';
 import app from '../src/app';
 
-const correctUrl = 'https://ru.hexlet.io/lessons.rss';
-const urlUpdated = 'http://lorem-rss.herokuapp.com/feed?unit=second&interval=30';
-const wrongUrl = 'hts://ru.hexlet.io/lessons.rss';
-const initHtml = readFileSync(path.resolve('index.html'), 'utf8').toString().trim();
-
-const validRss1 = readFileSync(path.resolve('__tests__', 'fixtures', 'rss.xml'), 'utf8');
-const validRss2 = readFileSync(path.resolve('__tests__', 'fixtures', 'rss2.xml'), 'utf8');
-const noValidRss = readFileSync(path.resolve('__tests__', 'fixtures', 'rssNoValid.xml'), 'utf8');
-
-const i18next = {
-  example: null,
-};
+const getFixturesPath = (file) => path.resolve('__tests__', 'fixtures', file);
+const rssUrl = 'https://ru.hexlet.io/lessons.rss';
+const initHtml = readFileSync(path.resolve('index.html'), 'utf8');
+const validRss1 = readFileSync(getFixturesPath('rss.xml'), 'utf8');
+const validRss2 = readFileSync(getFixturesPath('rss2.xml'), 'utf8');
+const noValidRss = readFileSync(getFixturesPath('rssNoValid.xml'), 'utf8');
 
 beforeEach(() => {
-  i18next.example = app();
+  app();
   document.body.innerHTML = initHtml;
 });
 
@@ -39,50 +34,51 @@ test('empty url', async () => {
   expect(await screen.findByText(/Не должно быть пустым/i)).toBeInTheDocument();
 });
 
+
 test('exists url', async () => {
-  nock('https://ru.hexlet.io').get('/lessons.rss').reply(200, validRss1);
+  nock('https://ru.hexlet.io/lessons.rss').get('').reply(200, validRss1);
   expect(screen.queryByText(/RSS успешно загружен/i)).not.toBeInTheDocument();
-  const { submit, input } = sendUrl(correctUrl);
+  const { submit, input } = sendUrl(rssUrl);
 
   expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
   expect(input.value).toBe('');
   expect(screen.queryByText(/RSS уже существует/i)).not.toBeInTheDocument();
-  input.value = correctUrl;
+  input.value = rssUrl;
   fireEvent.click(submit);
 
   expect(await screen.findByText(/RSS уже существует/i)).toBeInTheDocument();
-  expect(input.value).toBe(correctUrl);
+  expect(input.value).toBe(rssUrl);
 });
 
 test('wrong url', () => {
-  sendUrl(wrongUrl);
+  sendUrl('hts://ru.hexlet.io/lessons.rss');
   expect(screen.getByText(/Ссылка должна быть валидным URL/i)).toBeInTheDocument();
 });
 
 test('wrong rss', async () => {
-  nock('https://google.com').get().reply(200, noValidRss);
-  sendUrl('https://google.com');
+  nock('https://pannellum.org/documentation/examples/simple-example/').get().reply(200, noValidRss);
+  sendUrl('https://pannellum.org/documentation/examples/simple-example/');
   expect(await screen.findByText(/Ресурс не содержит валидный RSS/i)).toBeInTheDocument();
 });
 
 test('add feeds', async () => {
-  nock('https://ru.hexlet.io').get('/lessons.rss').reply(200, validRss1);
+  nock('https://ru.hexlet.io/lessons.rss').get('').reply(200, validRss1);
   nock('http://lorem-rss.herokuapp.com').get('/feed?unit=second&interval=30').reply(200, validRss2);
 
-  expect(screen.queryByText(i18next.example.t('feedsTitle'))).not.toBeInTheDocument();
+  expect(screen.queryByText(/Фиды/)).not.toBeInTheDocument();
   expect(screen.getByTestId('feeds')).toBeEmptyDOMElement();
-  sendUrl(correctUrl);
-  expect(await screen.findByText(i18next.example.t('feedsTitle'))).toBeInTheDocument();
+  sendUrl(rssUrl);
+  expect(await screen.findByText(/Фиды/)).toBeInTheDocument();
   expect(screen.getByTestId('feeds')).not.toBeEmptyDOMElement();
   expect(screen.getByText(/RSS успешно загружен/i)).toBeInTheDocument();
 
-  expect(screen.getByText(i18next.example.t('postsTitle'))).toBeInTheDocument();
+  expect(screen.getByText(/Посты/)).toBeInTheDocument();
   expect(screen.getByTestId('posts')).not.toBeEmptyDOMElement();
 
   const postContainer = screen.getByTestId('posts');
   const postsLength = within(postContainer).getAllByRole('listitem').length;
 
-  sendUrl(urlUpdated);
+  sendUrl('http://lorem-rss.herokuapp.com/feed?unit=second&interval=30');
   expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
   expect(within(screen.getByTestId('feeds')).getAllByRole('listitem')).toHaveLength(2);
   expect(within(postContainer).getAllByRole('listitem')).not.toHaveLength(postsLength);
@@ -93,7 +89,7 @@ test.todo('network');
 //   nock('https://ru.hexlet.io').get('/lessons.rss').replyWithError('');
 //   const submit = screen.getByRole('button', { name: /add/i });
 //   const input = screen.getByLabelText('url');
-//   input.value = correctUrl;
+//   input.value = rssUrl;
 //   fireEvent.click(submit);
 //   expect(await screen.findByText(/Ошибка сети/i)).toBeInTheDocument();
 // });

@@ -193,7 +193,6 @@ function app() {
         updateRss(watchedState);
       }, timeRepeatUpdateMs);
     });
-  return i18next;
 }
 
 export default app;
