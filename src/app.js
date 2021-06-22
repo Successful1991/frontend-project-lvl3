@@ -29,6 +29,7 @@ const addProxy = (url) => {
 };
 
 function getErrorType(e) {
+  console.log(32, JSON.stringify(e));
   if (e.isAxiosError) {
     return 'errors.network';
   }
@@ -118,6 +119,7 @@ function submitHandler(watchedState, form) {
       watchedState.form.status = 'filling';
     })
     .catch((e) => {
+      console.log(121, e);
       // eslint-disable-next-line no-param-reassign
       watchedState.error = getErrorType(e);
       // eslint-disable-next-line no-param-reassign

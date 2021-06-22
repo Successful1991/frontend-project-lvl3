@@ -1,6 +1,6 @@
 import nock from 'nock';
 import '@testing-library/jest-dom';
-import { screen, fireEvent, within } from '@testing-library/dom';
+import { screen, within } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event/dist';
 import path from 'path';
 import { readFileSync } from 'fs';
@@ -21,8 +21,8 @@ beforeEach(() => {
 function sendUrl(url) {
   const submit = screen.getByRole('button', { name: /add/i });
   const input = screen.getByLabelText('url');
-  input.value = url;
-  fireEvent.click(submit);
+  userEvent.paste(input, url);
+  userEvent.click(submit);
   return { input, submit };
 }
 
@@ -34,7 +34,6 @@ test('empty url', async () => {
   expect(await screen.findByText(/Не должно быть пустым/i)).toBeInTheDocument();
 });
 
-
 test('exists url', async () => {
   nock('https://ru.hexlet.io/lessons.rss').get('').reply(200, validRss1);
   expect(screen.queryByText(/RSS успешно загружен/i)).not.toBeInTheDocument();
@@ -43,8 +42,8 @@ test('exists url', async () => {
   expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
   expect(input.value).toBe('');
   expect(screen.queryByText(/RSS уже существует/i)).not.toBeInTheDocument();
-  input.value = rssUrl;
-  fireEvent.click(submit);
+  userEvent.paste(input, rssUrl);
+  userEvent.click(submit);
 
   expect(await screen.findByText(/RSS уже существует/i)).toBeInTheDocument();
   expect(input.value).toBe(rssUrl);
@@ -86,11 +85,17 @@ test('add feeds', async () => {
 
 test.todo('network');
 // test('network' , async () => {
-//   nock('https://ru.hexlet.io').get('/lessons.rss').replyWithError('');
+//   // nock('https://ru.hexlet.io')
+//   //   .get('/lessons.rss')
+//   //   .delayConnection(1000) // 2 seconds
+//   //   .replyWithError({
+//   //   code: 400
+//   // });
 //   const submit = screen.getByRole('button', { name: /add/i });
 //   const input = screen.getByLabelText('url');
-//   input.value = rssUrl;
-//   fireEvent.click(submit);
-//   expect(await screen.findByText(/Ошибка сети/i)).toBeInTheDocument();
+//   userEvent.paste(input, rssUrl);
+//   userEvent.click(submit);
+//   await setTimeout(() => {}, 3000);
+//   expect(screen.getByText(/Ошибка сети/i)).toBeInTheDocument();
 // });
 nock.enableNetConnect();
