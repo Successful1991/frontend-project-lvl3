@@ -3,6 +3,8 @@ import '@testing-library/jest-dom';
 import { screen, within } from '@testing-library/dom';
 import userEvent from '@testing-library/user-event/dist';
 import path from 'path';
+import axios from 'axios';
+import httpAdapter from 'axios/lib/adapters/http';
 import { readFileSync } from 'fs';
 import app from '../src/app';
 
@@ -13,9 +15,11 @@ const validRss1 = readFileSync(getFixturesPath('rss.xml'), 'utf8');
 const validRss2 = readFileSync(getFixturesPath('rss2.xml'), 'utf8');
 const noValidRss = readFileSync(getFixturesPath('rssNoValid.xml'), 'utf8');
 
-beforeEach(() => {
-  app();
+axios.defaults.adapter = httpAdapter;
+
+beforeEach(async () => {
   document.body.innerHTML = initHtml;
+  await app();
 });
 
 function sendUrl(url) {
@@ -24,6 +28,11 @@ function sendUrl(url) {
   userEvent.paste(input, url);
   userEvent.click(submit);
   return { input, submit };
+}
+
+function nockUrl(url, data) {
+  nock('https://hexlet-allorigins.herokuapp.com').get('/get')
+    .query({ url, disableCache: 'true' }).reply(200, data);
 }
 
 nock.disableNetConnect();
@@ -35,7 +44,7 @@ test('empty url', async () => {
 });
 
 test('exists url', async () => {
-  nock('https://ru.hexlet.io/lessons.rss').get('').reply(200, validRss1);
+  nockUrl(rssUrl, { contents: validRss1 });
   expect(screen.queryByText(/RSS успешно загружен/i)).not.toBeInTheDocument();
   const { submit, input } = sendUrl(rssUrl);
 
@@ -55,14 +64,14 @@ test('wrong url', () => {
 });
 
 test('wrong rss', async () => {
-  nock('https://pannellum.org/documentation/examples/simple-example/').get().reply(200, noValidRss);
+  nockUrl('https://pannellum.org/documentation/examples/simple-example/', noValidRss);
   sendUrl('https://pannellum.org/documentation/examples/simple-example/');
   expect(await screen.findByText(/Ресурс не содержит валидный RSS/i)).toBeInTheDocument();
 });
 
 test('add feeds', async () => {
-  nock('https://ru.hexlet.io/lessons.rss').get('').reply(200, validRss1);
-  nock('http://lorem-rss.herokuapp.com').get('/feed?unit=second&interval=30').reply(200, validRss2);
+  nockUrl(rssUrl, { contents: validRss1 });
+  nockUrl('http://lorem-rss.herokuapp.com/feed?unit=second&interval=30', { contents: validRss2 });
 
   expect(screen.queryByText(/Фиды/)).not.toBeInTheDocument();
   expect(screen.getByTestId('feeds')).toBeEmptyDOMElement();
@@ -83,19 +92,16 @@ test('add feeds', async () => {
   expect(within(postContainer).getAllByRole('listitem')).not.toHaveLength(postsLength);
 });
 
-test.todo('network');
-// test('network' , async () => {
-//   // nock('https://ru.hexlet.io')
-//   //   .get('/lessons.rss')
-//   //   .delayConnection(1000) // 2 seconds
-//   //   .replyWithError({
-//   //   code: 400
-//   // });
-//   const submit = screen.getByRole('button', { name: /add/i });
-//   const input = screen.getByLabelText('url');
-//   userEvent.paste(input, rssUrl);
-//   userEvent.click(submit);
-//   await setTimeout(() => {}, 3000);
-//   expect(screen.getByText(/Ошибка сети/i)).toBeInTheDocument();
-// });
+// test.todo('network');
+test('network' , async () => {
+  nock('https://hexlet-allorigins.herokuapp.com').get('/get')
+    .query({ rssUrl, disableCache: 'true' }).replyWithError('Network Error');
+
+  const submit = screen.getByRole('button', { name: /add/i });
+  const input = screen.getByLabelText('url');
+  userEvent.paste(input, rssUrl);
+  userEvent.click(submit);
+  expect(await screen.findByText(/Ошибка сети/i)).toBeInTheDocument();
+});
+
 nock.enableNetConnect();

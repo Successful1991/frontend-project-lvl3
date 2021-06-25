@@ -5,6 +5,5 @@
         <description>Практические уроки по программированию</description>
         <link>https://ru.hexlet.io/</link>
         <webMaster>info@hexlet.io</webMaster>
-        <parsererror>error</parsererror>
     </channel>
 </rss>

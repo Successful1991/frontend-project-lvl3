@@ -29,7 +29,6 @@ const addProxy = (url) => {
 };
 
 function getErrorType(e) {
-  console.log(32, JSON.stringify(e));
   if (e.isAxiosError) {
     return 'errors.network';
   }
@@ -119,7 +118,6 @@ function submitHandler(watchedState, form) {
       watchedState.form.status = 'filling';
     })
     .catch((e) => {
-      console.log(121, e);
       // eslint-disable-next-line no-param-reassign
       watchedState.error = getErrorType(e);
       // eslint-disable-next-line no-param-reassign
@@ -129,7 +127,7 @@ function submitHandler(watchedState, form) {
 
 function app() {
   const i18next = i18n.createInstance();
-  i18next
+  const i18nInstance = i18next
     .init({
       lng: 'ru',
       resources: language,
@@ -195,6 +193,7 @@ function app() {
         updateRss(watchedState);
       }, timeRepeatUpdateMs);
     });
+  return i18nInstance;
 }
 
 export default app;
