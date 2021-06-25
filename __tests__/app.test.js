@@ -93,7 +93,7 @@ test('add feeds', async () => {
 });
 
 // test.todo('network');
-test('network' , async () => {
+test('network', async () => {
   nock('https://hexlet-allorigins.herokuapp.com').get('/get')
     .query({ rssUrl, disableCache: 'true' }).replyWithError('Network Error');
 
