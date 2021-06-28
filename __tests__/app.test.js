@@ -13,7 +13,7 @@ const rssUrl = 'https://ru.hexlet.io/lessons.rss';
 const initHtml = readFileSync(path.resolve('index.html'), 'utf8');
 const validRss1 = readFileSync(getFixturesPath('rss.xml'), 'utf8');
 const validRss2 = readFileSync(getFixturesPath('rss2.xml'), 'utf8');
-const noValidRss = readFileSync(getFixturesPath('rssNoValid.html'), 'utf8');
+const noValidRss = readFileSync(getFixturesPath('rssNoValid.xml'), 'utf8');
 const proxyUrl = 'https://hexlet-allorigins.herokuapp.com';
 
 axios.defaults.adapter = httpAdapter;
