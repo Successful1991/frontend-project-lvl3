@@ -1,11 +1,13 @@
 import * as yup from 'yup';
 import axios from 'axios';
-import {
-  uniqueId, has, differenceBy, find, size,
-} from 'lodash';
+import uniqueId from 'lodash/uniqueId';
+import has from 'lodash/has';
+import differenceBy from 'lodash/differenceBy';
+import find from 'lodash/find';
+import size from 'lodash/size';
 
 import i18n from 'i18next';
-import language from './language/index';
+import language from './language';
 import initView from './view';
 import parse from './parser';
 
@@ -44,7 +46,7 @@ const getRss = (url) => {
 };
 
 function updateRss(watchedState) {
-  const promises = watchedState.feeds.map((feed) => getRss(feed.url)
+  const promises = watchedState.feeds.map((feed) => getRss(feed.rssUrl)
     .then((resp) => {
       const data = parse(resp);
       const updatedItems = data.items.map((item) => {
@@ -54,7 +56,7 @@ function updateRss(watchedState) {
           feedId: feed.id,
           id,
         };
-      }, []);
+      });
       const oldItems = watchedState.posts.filter((post) => post.feedId === feed.id);
       const newItems = differenceBy(updatedItems, oldItems, 'title');
       if (size(newItems) > 0) {
@@ -75,7 +77,7 @@ function updateRss(watchedState) {
 function submitHandler(watchedState, form) {
   const formData = new FormData(form);
   const url = formData.get('url');
-  const rssUrls = watchedState.feeds.map((feed) => feed.url);
+  const rssUrls = watchedState.feeds.map((feed) => feed.rssUrl);
   const error = validateUrl(url, rssUrls);
   if (error) {
     const errorMessageKey = `form.errors.${error.type}`;
@@ -101,8 +103,8 @@ function submitHandler(watchedState, form) {
       const feed = {
         title: data.title,
         description: data.description,
-        link: data.link,
-        url,
+        linkSite: data.link,
+        rssUrl: url,
         id,
       };
       const items = data.items.map((item) => ({
@@ -189,9 +191,7 @@ function app() {
         };
       });
 
-      setTimeout(() => {
-        updateRss(watchedState);
-      }, timeRepeatUpdateMs);
+      updateRss(watchedState);
     });
   return i18nInstance;
 }

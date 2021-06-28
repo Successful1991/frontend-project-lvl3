@@ -4,9 +4,6 @@ develop:
 install:
 	npm install
 
-build:
-	rm -rf dist
-    NODE_ENV=production npx webpack
 prettier:
 	npx prettier --write src
 test:

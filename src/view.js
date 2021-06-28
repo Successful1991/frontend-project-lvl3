@@ -34,7 +34,7 @@ const renderPosts = (feeds, elements, i18next, seenPosts) => {
   const posts = feeds.map((item) => {
     const linkClass = seenPosts.has(item.id) ? 'fw-regular' : 'fw-bold';
     const result = `<li class="list-group-item d-flex justify-content-between align-items-start" data-post-element data-post-id="${item.id}">
-    <a href="${item.link}" class="${linkClass}">${item.title}</a>
+    <a href="${item.linkSite}" class="${linkClass}">${item.title}</a>
     <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal" data-post-id="${item.id}">
       ${i18next.t('form.button')}
     </button></li>`;

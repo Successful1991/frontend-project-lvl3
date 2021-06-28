@@ -13,7 +13,8 @@ const rssUrl = 'https://ru.hexlet.io/lessons.rss';
 const initHtml = readFileSync(path.resolve('index.html'), 'utf8');
 const validRss1 = readFileSync(getFixturesPath('rss.xml'), 'utf8');
 const validRss2 = readFileSync(getFixturesPath('rss2.xml'), 'utf8');
-const noValidRss = readFileSync(getFixturesPath('rssNoValid.xml'), 'utf8');
+const noValidRss = readFileSync(getFixturesPath('rssNoValid.html'), 'utf8');
+const proxyUrl = 'https://hexlet-allorigins.herokuapp.com';
 
 axios.defaults.adapter = httpAdapter;
 
@@ -31,8 +32,8 @@ function sendUrl(url) {
 }
 
 function nockUrl(url, data) {
-  nock('https://hexlet-allorigins.herokuapp.com').get('/get')
-    .query({ url, disableCache: 'true' }).reply(200, data);
+  nock(proxyUrl).get('/get')
+    .query({ url, disableCache: 'true' }).reply(200, { contents: data });
 }
 
 nock.disableNetConnect();
@@ -44,7 +45,7 @@ test('empty url', async () => {
 });
 
 test('exists url', async () => {
-  nockUrl(rssUrl, { contents: validRss1 });
+  nockUrl(rssUrl, validRss1);
   expect(screen.queryByText(/RSS успешно загружен/i)).not.toBeInTheDocument();
   const { submit, input } = sendUrl(rssUrl);
 
@@ -70,9 +71,7 @@ test('wrong rss', async () => {
 });
 
 test('add feeds', async () => {
-  nockUrl(rssUrl, { contents: validRss1 });
-  nockUrl('http://lorem-rss.herokuapp.com/feed?unit=second&interval=30', { contents: validRss2 });
-
+  nockUrl(rssUrl, validRss1);
   expect(screen.queryByText(/Фиды/)).not.toBeInTheDocument();
   expect(screen.getByTestId('feeds')).toBeEmptyDOMElement();
   sendUrl(rssUrl);
@@ -85,7 +84,7 @@ test('add feeds', async () => {
 
   const postContainer = screen.getByTestId('posts');
   const postsLength = within(postContainer).getAllByRole('listitem').length;
-
+  nockUrl('http://lorem-rss.herokuapp.com/feed?unit=second&interval=30', validRss2);
   sendUrl('http://lorem-rss.herokuapp.com/feed?unit=second&interval=30');
   expect(await screen.findByText(/RSS успешно загружен/i)).toBeInTheDocument();
   expect(within(screen.getByTestId('feeds')).getAllByRole('listitem')).toHaveLength(2);
@@ -94,7 +93,7 @@ test('add feeds', async () => {
 
 // test.todo('network');
 test('network', async () => {
-  nock('https://hexlet-allorigins.herokuapp.com').get('/get')
+  nock(proxyUrl).get('/get')
     .query({ rssUrl, disableCache: 'true' }).replyWithError('Network Error');
 
   const submit = screen.getByRole('button', { name: /add/i });

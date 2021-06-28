@@ -15,7 +15,7 @@ const parse = (string) => {
     items: Array.from(domItems).map((item) => ({
       title: item.querySelector('title').textContent,
       description: item.querySelector('description').textContent,
-      link: item.querySelector('link').textContent,
+      rssUrl: item.querySelector('link').textContent,
     })),
   };
 };
