@@ -1,0 +1,9 @@
+<?xml version="1.0" >
+<rsos viersion="2.0">
+    <chaknnel>
+        <title>Новые уроки на Хекслете</title>
+        <description>Практические уроки по программированию</description>
+        <link>https://ru.hexlet.io/</link>
+        <webMaster>info@hexlet.io</webMaster>
+    </chaknnel>
+</rsos>
